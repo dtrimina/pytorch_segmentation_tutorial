@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+
+/run/camvid/*
+/.idea/
+
+/database/CamVid/train/*
+/database/CamVid/trainannot/*
+/database/CamVid/val/*
+/database/CamVid/valannot/*
+/database/CamVid/test/*
+/database/CamVid/testannot/*
+
