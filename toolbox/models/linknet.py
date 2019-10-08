@@ -1,4 +1,4 @@
-# https://github.com/e-lab/pytorch-linknet/blob/master/models/linknet.py
+# change from https://github.com/e-lab/pytorch-linknet/blob/master/models/linknet.py
 
 import torch
 import torch.nn as nn
@@ -115,7 +115,7 @@ class linknet(nn.Module):
                                 nn.BatchNorm2d(32),
                                 nn.ReLU(inplace=True),)
         self.tp_conv2 = nn.ConvTranspose2d(32, n_classes, 2, 2, 0)
-        self.lsm = nn.LogSoftmax(dim=1)
+        # self.lsm = nn.LogSoftmax(dim=1)
 
 
     def forward(self, x):
@@ -139,7 +139,7 @@ class linknet(nn.Module):
         y = self.conv2(y)
         y = self.tp_conv2(y)
 
-        y = self.lsm(y)
+        # y = self.lsm(y)
 
         return y
 
