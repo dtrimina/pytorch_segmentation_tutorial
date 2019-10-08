@@ -41,6 +41,9 @@ def predict(dataset, runid, use_pth='best_val_loss.pth', target_size=None, save_
     else:
         testset = testset[0]
 
+    # 标签color map, 没有使用默认
+    cmap = testset.cmap if hasattr(testset, 'cmap') else None
+
     test_loader = DataLoader(testset, batch_size=1, shuffle=False, num_workers=cfg['num_workers'])
 
     # model
@@ -48,7 +51,7 @@ def predict(dataset, runid, use_pth='best_val_loss.pth', target_size=None, save_
     model.load_state_dict(torch.load(os.path.join(logdir, use_pth)))
 
     # metrics
-    running_metrics_val = runningScore(cfg['n_classes'])
+    running_metrics_val = runningScore(cfg['n_classes'], ignore_label=testset.id_background)
     time_meter = averageMeter()
 
     # 输出尺寸变化 && 预测图保存路径
@@ -76,7 +79,7 @@ def predict(dataset, runid, use_pth='best_val_loss.pth', target_size=None, save_
 
             if save_predict:
                 predict = predict.squeeze(0)  # [1, h, w] -> [h, w]
-                predict = class_to_RGB(predict, N=cfg['n_classes'])  # 如果数据集没有给定cmap,使用默认cmap
+                predict = class_to_RGB(predict, N=cfg['n_classes'], cmap=cmap)  # 如果数据集没有给定cmap,使用默认cmap
                 predict = Image.fromarray(predict)
                 if target_size is not None:
                     predict = t.Resize(target_size)(predict)
@@ -101,7 +104,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # 指定database和训练id, 即根据 eg. run/camvid/2019-10-08-11-02预测
-    # args.d = 'camvid'
-    # args.i = '2019-10-08-11-51'
+    args.d = 'camvid'
+    args.i = '2019-10-08-11-02'
 
     predict(args.d, args.i, save_predict=args.s)
