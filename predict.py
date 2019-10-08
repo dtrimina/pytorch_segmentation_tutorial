@@ -51,10 +51,10 @@ def predict(dataset, runid, use_pth='best_val_loss.pth', target_size=None, save_
     running_metrics_val = runningScore(cfg['n_classes'])
     time_meter = averageMeter()
 
-    # 输出尺寸变化 && 模型保存路径
+    # 输出尺寸变化 && 预测图保存路径
     print(f'output size = {(cfg["image_h"], cfg["image_w"]) if target_size is None else target_size}')
     save_path = os.path.join(logdir, 'predicts')
-    if not os.path.exists(save_path):
+    if not os.path.exists(save_path) and save_predict:
         os.mkdir(save_path)
 
     # predict and save
@@ -76,7 +76,7 @@ def predict(dataset, runid, use_pth='best_val_loss.pth', target_size=None, save_
 
             if save_predict:
                 predict = predict.squeeze(0)  # [1, h, w] -> [h, w]
-                predict = class_to_RGB(predict, N=cfg['n_classes'], cmap=testset.cmap)  # 如果数据集没有给定cmap,使用默认cmap
+                predict = class_to_RGB(predict, N=cfg['n_classes'])  # 如果数据集没有给定cmap,使用默认cmap
                 predict = Image.fromarray(predict)
                 if target_size is not None:
                     predict = t.Resize(target_size)(predict)
@@ -101,6 +101,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     args.d = 'camvid'
-    args.i = '66789'
+    args.i = '2019-10-08-11-51'
 
-    predict(args.d, args.i, target_size=(512, 512), save_predict=True)
+    predict(args.d, args.i, save_predict=True)
