@@ -21,7 +21,8 @@ class CamVid(data.Dataset):
         self.root = root
         self.mode = mode
         self.image_size = image_size
-        self.n_classes = 12  # 包括背景
+        self.n_classes = 12  # 包括背景 0~10 + 11
+        self.id_background = 11  # 背景类别id
 
         # 输入数据处理流程为 augmentations + transform
 
@@ -90,18 +91,19 @@ class CamVid(data.Dataset):
 
     @property
     def cmap(self):
-        return [[0, 0, 0],  # Unlabelled
-                [128, 128, 128],  # Sky
-                [128, 0, 0],  # Building
-                [192, 192, 128],  # Pole
-                [128, 64, 128],  # Road
-                [60, 40, 222],  # Pavement
-                [128, 128, 0],  # Tree
-                [192, 128, 128],  # SignSymbol
-                [64, 64, 128],  # Fence
-                [64, 0, 128],  # Car
-                [64, 64, 0],  # Pedestrian
-                [0, 128, 192], ]  # Bicyclist
+        return [[128, 128, 128],  # Sky 0
+                [128, 0, 0],  # Building 1
+                [192, 192, 128],  # Pole 2
+                [128, 64, 128],  # Road 3
+                [60, 40, 222],  # Pavement 4
+                [128, 128, 0],  # Tree 5
+                [192, 128, 128],  # SignSymbol 6
+                [64, 64, 128],  # Fence 7
+                [64, 0, 128],  # Car 8
+                [64, 64, 0],  # Pedestrian 9
+                [0, 128, 192],   # Bicyclist 10
+                [0, 0, 0],  # Unlabelled 11
+                ]
 
 
 if __name__ == '__main__':
