@@ -175,3 +175,10 @@ class segnet(nn.Module):
                 assert l1.bias.size() == l2.bias.size()
                 l2.weight.data = l1.weight.data
                 l2.bias.data = l1.bias.data
+
+
+if __name__ == '__main__':
+    inputs = torch.randn((4, 3, 360, 480)).cuda()
+    model = segnet(n_classes=12).cuda()
+    out = model(inputs)
+    print(out.size())

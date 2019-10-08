@@ -58,7 +58,7 @@ def run(cfg, logger, writer):
     # 指标
     train_loss_meter = averageMeter()
     val_loss_meter = averageMeter()
-    running_metrics_val = runningScore(cfg['n_classes'])  # metrics统计量默认忽略背景,使用参数ignore_background=False,可以将背景考虑在内
+    running_metrics_val = runningScore(cfg['n_classes'], ignore_label=valset.id_background)
 
     iter = 0
     best_val_loss_meter = np.Inf  # 保存验证集loss最好模型

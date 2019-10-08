@@ -105,6 +105,6 @@ if __name__ == '__main__':
 
     # 指定database和训练id, 即根据 eg. run/camvid/2019-10-08-11-02预测
     args.d = 'camvid'
-    args.i = '2019-10-08-11-02'
+    args.i = '2019-10-08-19-24-6249'
 
     predict(args.d, args.i, save_predict=args.s)
