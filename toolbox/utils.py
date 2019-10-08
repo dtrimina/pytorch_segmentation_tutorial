@@ -59,8 +59,5 @@ def class_to_RGB(label, N, cmap=None, normalized=False):
     return label_color
 
 
-
-
-
 if __name__ == '__main__':
     pass

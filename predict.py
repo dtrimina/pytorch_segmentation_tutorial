@@ -96,11 +96,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="predict")
     parser.add_argument("-d", type=str, help="predict dataset")
     parser.add_argument("-i", type=str, help="predict id")
-    parser.add_argument("-s", type=bool, help="save predict or not")
+    parser.add_argument("-s", type=bool, default=True, help="save predict or not")
 
     args = parser.parse_args()
 
-    args.d = 'camvid'
-    args.i = '2019-10-08-11-51'
+    # 指定database和训练id, 即根据 eg. run/camvid/2019-10-08-11-02预测
+    # args.d = 'camvid'
+    # args.i = '2019-10-08-11-51'
 
-    predict(args.d, args.i, save_predict=True)
+    predict(args.d, args.i, save_predict=args.s)

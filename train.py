@@ -155,7 +155,7 @@ if __name__ == '__main__':
         cfg = json.load(fp)
 
     # 训练的各种记录的保存目录
-    logdir = f'run/{cfg["dataset"]}/{time.strftime("%Y-%m-%d-%H-%M")}'  # the same time as log
+    logdir = f'run/{cfg["dataset"]}/{time.strftime("%Y-%m-%d-%H-%M")}-{random.randint(1000, 10000)}'  # the same time as log + random id
     os.makedirs(logdir)
     shutil.copy(args.config, logdir)
 

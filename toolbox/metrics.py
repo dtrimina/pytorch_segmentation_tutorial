@@ -4,6 +4,11 @@ import numpy as np
 
 
 class runningScore(object):
+    '''
+        n_classes: database的类别,包括背景
+        ignore_background: 计算指标时是否忽略背景
+    '''
+
     def __init__(self, n_classes, ignore_background=True):
         self.n_classes = n_classes
         self.confusion_matrix = np.zeros((n_classes, n_classes))
@@ -49,10 +54,10 @@ class runningScore(object):
 
         return (
             {
-                "Overall Acc: \t": acc,
-                "Mean Acc : \t": acc_cls,
-                "FreqW Acc : \t": fwavacc,
-                "Mean IoU : \t": mean_iu,
+                "gAcc: ": acc,
+                "mAcc: ": acc_cls,
+                # "FreqW Acc : \t": fwavacc,
+                "mIoU: ": mean_iu,
             },
             cls_iu,
         )
