@@ -15,8 +15,8 @@ from toolbox.metrics import averageMeter, runningScore
 from toolbox.utils import class_to_RGB
 
 
-def predict(dataset, runid, use_pth='best_val_loss.pth', target_size=None, save_predict=False):
-    assert use_pth in ['best_val_loss.pth']
+def predict(dataset, runid, use_pth='best_val_miou.pth', target_size=None, save_predict=False):
+    assert use_pth in ['best_val_loss.pth', 'best_val_miou.pth']
 
     logdir = f'run/{dataset}/{runid}'
     files = os.listdir(logdir)

@@ -38,5 +38,13 @@
 -run_tasks.sh   # 按照配置文件批量训练  
 ```
 
+#### default train config  
+
+- 预处理: [pytorch normalize](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/datasets/camvid.py#L44), 无数据增强
+- CrossEntropyLoss + class_weight in linknet + 忽略背景
+- 120 epoch, lr=1e-4, every 40 steps decay 0.1
+- Adam optimizer
+- 支持多gpu使用 "gpu_ids": "0123"
+
 #### reference
 - https://github.com/meetshah1995/pytorch-semseg

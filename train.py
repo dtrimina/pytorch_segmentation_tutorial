@@ -62,6 +62,7 @@ def run(cfg, logger, writer):
 
     iter = 0
     best_val_loss_meter = np.Inf  # 保存验证集loss最好模型
+    best_val_miou_meter = -100  # 保存验证集miou最好模型
 
     logger.info(f'Conf | use epoch {cfg["epoch"]}')
 
@@ -117,15 +118,6 @@ def run(cfg, logger, writer):
                 label = label.squeeze(1).cpu().numpy()  # [batch_size, 1, h, w] -> [batch_size, h, w]
                 running_metrics_val.update(label, predict)
 
-            # 如果结果最好 保存模型
-            if val_loss_meter.avg < best_val_loss_meter:
-                best_val_loss_meter = val_loss_meter.avg
-                if len(gpu_ids) > 1:
-                    save_state_dict = model.module.state_dict()
-                else:
-                    save_state_dict = model.state_dict()
-                torch.save(save_state_dict, os.path.join(cfg['logdir'], 'best_val_loss.pth'))
-
             # writer.add_scalar('loss / train', train_loss_meter.avg, ep + 1)
             # writer.add_scalar('loss / val', val_loss_meter.avg, ep + 1)
             logger.info(f'Test | [{ep + 1:3d}/{cfg["epoch"]}] loss:train/val/val_best='
@@ -135,6 +127,16 @@ def run(cfg, logger, writer):
 
             for key, value in score.items():
                 logger.info(f'Test | [{ep + 1:3d}/{cfg["epoch"]}] {key}{value}')
+
+            # 如果结果最好 保存模型
+            if val_loss_meter.avg < best_val_loss_meter:
+                best_val_loss_meter = val_loss_meter.avg
+                save_state_dict = model.module.state_dict() if len(gpu_ids) > 1 else model.state_dict()
+                torch.save(save_state_dict, os.path.join(cfg['logdir'], 'best_val_loss.pth'))
+            if score["mIoU: "] > best_val_miou_meter:
+                best_val_miou_meter = score["mIoU: "]
+                save_state_dict = model.module.state_dict() if len(gpu_ids) > 1 else model.state_dict()
+                torch.save(save_state_dict, os.path.join(cfg['logdir'], 'best_val_miou.pth'))
 
 
 if __name__ == '__main__':

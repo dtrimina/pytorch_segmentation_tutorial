@@ -1,5 +1,5 @@
 {
-    "model_name": "linknet",
+    "model_name": "fcdensenet",
     "n_classes": 12,
 
     "dataset": "camvid",
@@ -18,7 +18,7 @@
     "lr_decay_gamma": 0.1,
     "weight_decay": 1e-3,
 
-    "batch_size": 4,
+    "batch_size": 1,
     "num_workers": 4,
 
     "gpu_ids": "0"

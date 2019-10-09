@@ -145,7 +145,7 @@ class linknet(nn.Module):
 
 
 if __name__ == '__main__':
-    inputs = torch.randn((4, 3, 576, 768)).cuda()
+    inputs = torch.randn((4, 3, 352, 480)).cuda()
     model = linknet(n_classes=12).cuda()
     out = model(inputs)
     print(out.size())
