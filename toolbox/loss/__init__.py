@@ -1,12 +1,20 @@
 import torch.nn as nn
-from toolbox.loss.loss import CrossEntropyLoss2D
 
 
-def get_loss(cfg):
+def get_loss(cfg, weight=None, ignore_index=-100):
+
+    '''
+
+        :param cfg:
+        :param weight: class weighting
+        :param ignore_index: class to ignore, 一般为背景id
+        :return:
+    '''
 
     assert cfg['loss'] in ['crossentropyloss2D']
+    assert len(weight) == cfg['n_classes']
 
     return {
-        'crossentropyloss2D': CrossEntropyLoss2D,
+        'crossentropyloss2D': nn.CrossEntropyLoss(weight=weight, ignore_index=ignore_index),
 
-    }[cfg['loss']]()
+    }[cfg['loss']]

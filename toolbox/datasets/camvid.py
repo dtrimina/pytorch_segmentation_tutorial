@@ -24,6 +24,12 @@ class CamVid(data.Dataset):
         self.n_classes = 12  # 包括背景 0~10 + 11
         self.id_background = 11  # 背景类别id
 
+        # 类别平衡权重 compute in database/CamVid/class_weight.py
+        self.class_weight = torch.tensor([5.792034808361155, 4.440287727094176, 34.021664627309704,  # method in linknet
+                                          3.4469004372298953, 15.911943517293647, 9.020235851219086,
+                                          32.01377375777377, 32.47892445011425, 13.207140888906824,
+                                          38.38765297717864, 44.134505510463406, 17.306363906693317], requires_grad=False)
+
         # 输入数据处理流程为 augmentations + transform
 
         # augmentations: 表示对图像的增强操作, 其中尺寸变换Resize,随机裁剪RamdomCrop, \
@@ -56,7 +62,7 @@ class CamVid(data.Dataset):
             'label': label,
         }
 
-        if self.augmentations is not None:
+        if self.augmentations is not None and self.mode == 'train':
             sample = self.augmentations(sample)
         sample = self.normalize(sample)
         sample['label_path'] = label_path.strip().split('/')[-1]  # 后期保存预测图时的文件名和label文件名一致

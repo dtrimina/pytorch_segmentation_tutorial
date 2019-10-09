@@ -51,9 +51,9 @@ def run(cfg, logger, writer):
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg['lr'], weight_decay=cfg['weight_decay'])
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, cfg['lr_decay_steps'], gamma=cfg['lr_decay_gamma'])
 
-    # 损失函数
+    # 损失函数 & 类别权重平衡 & 训练时是否忽略背景
     logger.info(f'Conf | use loss function {cfg["loss"]}')
-    criterion = get_loss(cfg).to(cfg['device'])
+    criterion = get_loss(cfg, weight=trainset.class_weight, ignore_index=trainset.id_background).to(cfg['device'])
 
     # 指标
     train_loss_meter = averageMeter()
