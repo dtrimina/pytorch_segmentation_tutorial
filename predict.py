@@ -48,10 +48,11 @@ def predict(dataset, runid, use_pth='best_val_loss.pth', target_size=None, save_
 
     # model
     model = get_model(cfg).to(device)
+    print(os.path.join(logdir, use_pth))
     model.load_state_dict(torch.load(os.path.join(logdir, use_pth)))
 
     # metrics
-    running_metrics_val = runningScore(cfg['n_classes'], ignore_label=testset.id_background)
+    running_metrics_val = runningScore(cfg['n_classes'], ignore_index=testset.id_background)
     time_meter = averageMeter()
 
     # 输出尺寸变化 && 预测图保存路径
@@ -105,6 +106,6 @@ if __name__ == '__main__':
 
     # 指定database和训练id, 即根据 eg. run/camvid/2019-10-08-11-02预测
     args.d = 'camvid'
-    args.i = '2019-10-09-09-09-8734'
+    args.i = '2019-10-09-10-54-1329'
 
     predict(args.d, args.i, save_predict=args.s)

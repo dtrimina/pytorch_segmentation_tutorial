@@ -6,18 +6,18 @@ import numpy as np
 class runningScore(object):
     '''
         n_classes: database的类别,包括背景
-        ignore_label: 需要忽略的类别id,一般为背景id, eg. CamVid.id_background
+        ignore_index: 需要忽略的类别id,一般为背景id, eg. CamVid.id_background
     '''
 
-    def __init__(self, n_classes, ignore_label=255):
+    def __init__(self, n_classes, ignore_index=-100):
         self.n_classes = n_classes
         self.confusion_matrix = np.zeros((n_classes, n_classes))
 
-        assert 0 <= ignore_label < n_classes or ignore_label == 255
-        self.ignore_label = ignore_label
+        assert 0 <= ignore_index < n_classes or ignore_index == -100
+        self.ignore_index = ignore_index
 
     def _fast_hist(self, label_true, label_pred, n_class):
-        mask = (label_true >= 0) & (label_true < n_class) & (label_true != self.ignore_label)
+        mask = (label_true >= 0) & (label_true < n_class) & (label_true != self.ignore_index)
         hist = np.bincount(
             n_class * label_true[mask].astype(int) + label_pred[mask], minlength=n_class ** 2
         ).reshape(n_class, n_class)
@@ -36,9 +36,9 @@ class runningScore(object):
         """
 
         hist = self.confusion_matrix
-        if self.ignore_label != 255:
-            hist = np.delete(hist, self.ignore_label, axis=0)
-            hist = np.delete(hist, self.ignore_label, axis=1)
+        if self.ignore_index != -100:
+            hist = np.delete(hist, self.ignore_index, axis=0)
+            hist = np.delete(hist, self.ignore_index, axis=1)
         acc = np.diag(hist).sum() / hist.sum()
         acc_cls = np.diag(hist) / hist.sum(axis=1)
         acc_cls = np.nanmean(acc_cls)
