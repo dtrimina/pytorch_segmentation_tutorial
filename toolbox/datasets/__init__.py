@@ -1,21 +1,34 @@
 from toolbox.datasets.camvid import CamVid
-# from toolbox.datasets.sunrgbd import SUNRGBD
-from toolbox.datasets.augmentations import Compose, Resize, CenterCrop, \
+from toolbox.datasets.sunrgbd import SUNRGBD
+from toolbox.datasets.augmentations import Compose, Resize, CenterCrop, RandomScale, RandomResizedCrop,\
     Lambda, RandomApply, RandomChoice, RandomOrder, RandomCrop, RandomHorizontalFlip, \
     RandomVerticalFlip, ColorJitter, RandomRotation, Grayscale, RandomGrayscale
 
 
 def get_dataset(cfg):
-    assert cfg['dataset'] in ['camvid']
+    assert cfg['dataset'] in ['camvid', 'sunrgbd']
     assert cfg['use_pt_norm'] in ['True' or 'False']
 
-    if cfg['augmentation'] != 'None':
-        # augmentation = Compose([
-        #       ....
-        # ])
-        raise ('you should add augmentation here.')
+    if cfg['augmentation'] == 'default':
+        augmentation = Compose([
+            RandomResizedCrop(size=(cfg['image_h'], cfg['image_w']), scale=(0.85, 1), ratio=(4/5, 5/4)),
+            # Resize((cfg['image_h'], cfg['image_w'])),
+            # RandomScale(scale=(1, 1.2)),
+            # RandomCrop(((cfg['image_h'], cfg['image_w']))),
+            ColorJitter(0.05, 0.05, 0.05, 0.05),
+            RandomVerticalFlip(),
+            RandomHorizontalFlip(),
+            # RandomRotation(5),
+            RandomGrayscale(0.03),
+        ])
+    elif cfg['augmentation'] == 'no':
+        # resize 到固定尺寸
+        augmentation = Resize((cfg['image_h'], cfg['image_w']))
     else:
-        augmentation = None
+        # augmentation = Compose([
+        #     ...
+        # ])
+        raise('You need edit this.')
 
     args = {
         'image_size': (cfg['image_h'], cfg['image_w']),
@@ -25,7 +38,7 @@ def get_dataset(cfg):
 
     if cfg['dataset'] == 'camvid':
         return CamVid(mode='train', **args), CamVid(mode='val', **args), CamVid(mode='test', **args)
-    # elif cfg['dataset'] == 'sunrgbd':
-    #     return SUNRGBD(mode='train', **args), SUNRGBD(mode='test', **args)
+    elif cfg['dataset'] == 'sunrgbd':
+        return SUNRGBD(mode='train', **args), SUNRGBD(mode='test', **args)
     else:
         return

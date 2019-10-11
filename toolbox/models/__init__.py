@@ -6,7 +6,7 @@ from toolbox.models.enet import ENet
 
 
 def get_model(cfg):
-    assert cfg['model_name'] in ['unet', 'segnet', 'linknet', 'fcdensenet']
+    assert cfg['model_name'] in ['unet', 'segnet', 'linknet', 'fcdensenet', 'enet']
 
     return {
         'unet': unet,

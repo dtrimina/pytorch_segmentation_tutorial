@@ -1,6 +1,8 @@
 from __future__ import division
 import sys
 import random
+import math
+import warnings
 from PIL import Image
 
 try:
@@ -12,9 +14,27 @@ import collections
 
 import torchvision.transforms.functional as F
 
-__all__ = ["Compose", "Resize", "CenterCrop", "Lambda", "RandomApply", "RandomChoice", "RandomOrder",
-           "RandomCrop", "RandomHorizontalFlip", "RandomVerticalFlip", "ColorJitter", "RandomRotation",
-           "Grayscale", "RandomGrayscale", ]
+__all__ = ["Compose",
+
+           "Resize",  # 尺寸缩减到对应size, 如果给定size为int,尺寸缩减到(size * height / width, size)
+           "CenterCrop",  # 中心裁剪
+           "RandomScale",  # 尺寸随机缩放
+           "RandomCrop",  # 随机裁剪,必要时可以进行padding
+           "RandomResizedCrop",  # scale(随机面积缩放) -> ratio(随机宽长比:w/h) -> 得到一个符合scale和ratio的截取位置
+                                 # -> 在原图上进行截取 ->  resize到目标size
+
+           "RandomApply",  # 给定transforms list,随机都执行或都不执行
+           "RandomChoice",  # 给定transforms list,随机打乱顺序执行
+           "RandomOrder",  # 给定transforms list,随机选择一个执行
+
+           "RandomHorizontalFlip",  # 随机水平翻转
+           "RandomVerticalFlip",  # 随机竖直翻转
+
+           "ColorJitter",  # 亮度,对比度,饱和度,色调
+           "RandomRotation",   # 随机旋转(-degrees, degrees)
+           "Grayscale",        # 灰度化
+           "RandomGrayscale",  # 随机灰度化
+           ]
 
 _pil_interpolation_to_str = {
     Image.NEAREST: 'PIL.Image.NEAREST',
@@ -47,21 +67,12 @@ class Lambda(object):
     def __call__(self, img):
         return self.lambd(img)
 
-    def __repr__(self):
-        return self.__class__.__name__ + '()'
-
 
 class Compose(object):
     """Composes several transforms together.
 
     Args:
         transforms (list of ``Transform`` objects): list of transforms to compose.
-
-    Example:
-        >>>     transforms.Compose([
-        >>>     transforms.CenterCrop(10),
-        >>>     transforms.ToTensor(),
-        >>> ])
     """
 
     def __init__(self, transforms):
@@ -71,14 +82,6 @@ class Compose(object):
         for t in self.transforms:
             sample = t(sample)
         return sample
-
-    def __repr__(self):
-        format_string = self.__class__.__name__ + '('
-        for t in self.transforms:
-            format_string += '\n'
-            format_string += '    {0}'.format(t)
-        format_string += '\n)'
-        return format_string
 
 
 class Resize(object):
@@ -90,31 +93,46 @@ class Resize(object):
             smaller edge of the image will be matched to this number.
             i.e, if height > width, then image will be rescaled to
             (size * height / width, size)
-        interpolation (int, optional): Desired interpolation. Default is
-            ``PIL.Image.BILINEAR``
     """
 
-    def __init__(self, size, interpolation=Image.BILINEAR):
+    def __init__(self, size):
         assert isinstance(size, int) or (isinstance(size, Iterable) and len(size) == 2)
         self.size = size
-        self.interpolation = interpolation
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be scaled.
+        assert 'image' in sample.keys()
+        assert 'label' in sample.keys()
 
-        Returns:
-            PIL Image: Rescaled image.
-        """
-        for key in sample.keys():
-            sample[key] = F.resize(sample[key], self.size, self.interpolation)
+        # BILINEAR
+        sample['image'] = F.resize(sample['image'], self.size, Image.BILINEAR)
+        # NEAREST
+        sample['label'] = F.resize(sample['label'], self.size, Image.NEAREST)
 
         return sample
 
-    def __repr__(self):
-        interpolate_str = _pil_interpolation_to_str[self.interpolation]
-        return self.__class__.__name__ + '(size={0}, interpolation={1})'.format(self.size, interpolate_str)
+
+class RandomScale(object):
+    def __init__(self, scale):
+        assert isinstance(scale, Iterable) and len(scale) == 2
+        assert 0 < scale[0] <= scale[1]
+        self.scale = scale
+
+    def __call__(self, sample):
+        assert 'image' in sample.keys()
+        assert 'label' in sample.keys()
+
+        w, h = sample['image'].size
+
+        scale = random.uniform(self.scale[0], self.scale[1])
+        size = (int(round(h * scale)), int(round(w * scale)))
+
+        # BILINEAR
+        sample['image'] = F.resize(sample['image'], size, Image.BILINEAR)
+
+        # NEAREST
+        sample['label'] = F.resize(sample['label'], size, Image.NEAREST)
+
+        return sample
 
 
 class CenterCrop(object):
@@ -133,20 +151,11 @@ class CenterCrop(object):
             self.size = size
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be cropped.
 
-        Returns:
-            PIL Image: Cropped image.
-        """
         for key in sample.keys():
             sample[key] = F.center_crop(sample[key], self.size)
 
         return sample
-
-    def __repr__(self):
-        return self.__class__.__name__ + '(size={0})'.format(self.size)
 
 
 class RandomTransforms(object):
@@ -162,14 +171,6 @@ class RandomTransforms(object):
 
     def __call__(self, *args, **kwargs):
         raise NotImplementedError()
-
-    def __repr__(self):
-        format_string = self.__class__.__name__ + '('
-        for t in self.transforms:
-            format_string += '\n'
-            format_string += '    {0}'.format(t)
-        format_string += '\n)'
-        return format_string
 
 
 class RandomApply(RandomTransforms):
@@ -191,15 +192,6 @@ class RandomApply(RandomTransforms):
         for t in self.transforms:
             img = t(img)
         return img
-
-    def __repr__(self):
-        format_string = self.__class__.__name__ + '('
-        format_string += '\n    p={}'.format(self.p)
-        for t in self.transforms:
-            format_string += '\n'
-            format_string += '    {0}'.format(t)
-        format_string += '\n)'
-        return format_string
 
 
 class RandomOrder(RandomTransforms):
@@ -273,15 +265,6 @@ class RandomCrop(object):
 
     @staticmethod
     def get_params(img, output_size):
-        """Get parameters for ``crop`` for a random crop.
-
-        Args:
-            img (PIL Image): Image to be cropped.
-            output_size (tuple): Expected output size of the crop.
-
-        Returns:
-            tuple: params (i, j, h, w) to be passed to ``crop`` for random crop.
-        """
         w, h = img.size
         th, tw = output_size
         if w == tw and h == th:
@@ -292,13 +275,6 @@ class RandomCrop(object):
         return i, j, th, tw
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be cropped.
-
-        Returns:
-            PIL Image: Cropped image.
-        """
         assert 'image' in sample.keys()
 
         i, j, h, w = self.get_params(sample['image'], self.size)
@@ -320,64 +296,115 @@ class RandomCrop(object):
 
         return sample
 
-    def __repr__(self):
-        return self.__class__.__name__ + '(size={0}, padding={1})'.format(self.size, self.padding)
+
+class RandomResizedCrop(object):
+    """Crop the given PIL Image to random size and aspect ratio.
+
+    A crop of random size (default: of 0.08 to 1.0) of the original size and a random
+    aspect ratio (default: of 3/4 to 4/3) of the original aspect ratio is made. This crop
+    is finally resized to given size.
+    This is popularly used to train the Inception networks.
+
+    Args:
+        size: expected output size of each edge
+        scale: range of size of the origin size cropped
+        ratio: range of aspect ratio of the origin aspect ratio cropped
+        interpolation: Default: PIL.Image.BILINEAR
+    """
+
+    def __init__(self, size, scale=(0.08, 1.0), ratio=(3. / 4., 4. / 3.)):
+        if isinstance(size, tuple):
+            self.size = size
+        else:
+            self.size = (size, size)
+        if (scale[0] > scale[1]) or (ratio[0] > ratio[1]):
+            warnings.warn("range should be of kind (min, max)")
+
+        self.scale = scale
+        self.ratio = ratio
+
+    @staticmethod
+    def get_params(img, scale, ratio):
+        """Get parameters for ``crop`` for a random sized crop.
+
+        Args:
+            img (PIL Image): Image to be cropped.
+            scale (tuple): range of size of the origin size cropped
+            ratio (tuple): range of aspect ratio of the origin aspect ratio cropped
+
+        Returns:
+            tuple: params (i, j, h, w) to be passed to ``crop`` for a random
+                sized crop.
+        """
+        area = img.size[0] * img.size[1]
+
+        for attempt in range(10):
+            target_area = random.uniform(*scale) * area
+            log_ratio = (math.log(ratio[0]), math.log(ratio[1]))
+            aspect_ratio = math.exp(random.uniform(*log_ratio))
+
+            w = int(round(math.sqrt(target_area * aspect_ratio)))
+            h = int(round(math.sqrt(target_area / aspect_ratio)))
+
+            # 如果目标面积,长,宽都比原图小, 则进行随机裁剪
+            if w <= img.size[0] and h <= img.size[1]:
+                i = random.randint(0, img.size[1] - h)
+                j = random.randint(0, img.size[0] - w)
+                return i, j, h, w
+
+        # Fallback to central crop
+        in_ratio = img.size[0] / img.size[1]
+        if (in_ratio < min(ratio)):
+            w = img.size[0]
+            h = w / min(ratio)
+        elif (in_ratio > max(ratio)):
+            h = img.size[1]
+            w = h * max(ratio)
+        else:  # whole image
+            w = img.size[0]
+            h = img.size[1]
+        i = (img.size[1] - h) // 2
+        j = (img.size[0] - w) // 2
+        return i, j, h, w
+
+    def __call__(self, sample):
+
+        assert 'image' in sample.keys()
+        assert 'label' in sample.keys()
+
+        i, j, h, w = self.get_params(sample['image'], self.scale, self.ratio)
+
+        # BILINEAR
+        sample['image'] = F.resized_crop(sample['image'], i, j, h, w, self.size, Image.BILINEAR)
+
+        # NEAREST
+        sample['label'] = F.resized_crop(sample['label'], i, j, h, w, self.size, Image.NEAREST)
+
+        return sample
 
 
 class RandomHorizontalFlip(object):
-    """Horizontally flip the given PIL Image randomly with a given probability.
-
-    Args:
-        p (float): probability of the image being flipped. Default value is 0.5
-    """
 
     def __init__(self, p=0.5):
         self.p = p
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be flipped.
-
-        Returns:
-            PIL Image: Randomly flipped image.
-        """
-
         if random.random() < self.p:
             for key in sample.keys():
                 sample[key] = F.hflip(sample[key])
 
         return sample
 
-    def __repr__(self):
-        return self.__class__.__name__ + '(p={})'.format(self.p)
-
 
 class RandomVerticalFlip(object):
-    """Vertically flip the given PIL Image randomly with a given probability.
-
-    Args:
-        p (float): probability of the image being flipped. Default value is 0.5
-    """
-
     def __init__(self, p=0.5):
         self.p = p
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be flipped.
-
-        Returns:
-            PIL Image: Randomly flipped image.
-        """
         if random.random() < self.p:
             for key in sample.keys():
                 sample[key] = F.vflip(sample[key])
         return sample
-
-    def __repr__(self):
-        return self.__class__.__name__ + '(p={})'.format(self.p)
 
 
 # 只对image进行操作
@@ -427,14 +454,7 @@ class ColorJitter(object):
 
     @staticmethod
     def get_params(brightness, contrast, saturation, hue):
-        """Get a randomized transform to be applied on image.
 
-        Arguments are same as that of __init__.
-
-        Returns:
-            Transform which randomly adjusts brightness, contrast and
-            saturation in a random order.
-        """
         transforms = []
 
         if brightness is not None:
@@ -459,13 +479,6 @@ class ColorJitter(object):
         return transform
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Input image.
-
-        Returns:
-            PIL Image: Color jittered image.
-        """
 
         assert 'image' in sample.keys()
 
@@ -474,13 +487,6 @@ class ColorJitter(object):
         sample['image'] = transform(sample['image'])
         return sample
 
-    def __repr__(self):
-        format_string = self.__class__.__name__ + '('
-        format_string += 'brightness={0}'.format(self.brightness)
-        format_string += ', contrast={0}'.format(self.contrast)
-        format_string += ', saturation={0}'.format(self.saturation)
-        format_string += ', hue={0})'.format(self.hue)
-        return format_string
 
 
 class RandomRotation(object):
@@ -531,14 +537,6 @@ class RandomRotation(object):
         return angle
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be rotated.
-
-        Returns:
-            PIL Image: Rotated image.
-        """
-
         angle = self.get_params(self.degrees)
 
         for key in sample.keys():
@@ -546,14 +544,7 @@ class RandomRotation(object):
 
         return sample
 
-    def __repr__(self):
-        format_string = self.__class__.__name__ + '(degrees={0}'.format(self.degrees)
-        format_string += ', resample={0}'.format(self.resample)
-        format_string += ', expand={0}'.format(self.expand)
-        if self.center is not None:
-            format_string += ', center={0}'.format(self.center)
-        format_string += ')'
-        return format_string
+
 
 
 # 只对image进行操作
@@ -574,19 +565,10 @@ class Grayscale(object):
         self.num_output_channels = num_output_channels
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be converted to grayscale.
-
-        Returns:
-            PIL Image: Randomly grayscaled image.
-        """
         assert 'image' in sample.keys()
         sample['image'] = F.to_grayscale(sample['image'], num_output_channels=self.num_output_channels)
         return sample
 
-    def __repr__(self):
-        return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)
 
 
 # 只对image进行操作
@@ -608,13 +590,6 @@ class RandomGrayscale(object):
         self.p = p
 
     def __call__(self, sample):
-        """
-        Args:
-            img (PIL Image): Image to be converted to grayscale.
-
-        Returns:
-            PIL Image: Randomly grayscaled image.
-        """
 
         assert 'image' in sample.keys()
         img = sample['image']
@@ -624,8 +599,4 @@ class RandomGrayscale(object):
             sample['image'] = F.to_grayscale(img, num_output_channels=num_output_channels)
 
         return sample
-
-    def __repr__(self):
-        return self.__class__.__name__ + '(p={0})'.format(self.p)
-
 

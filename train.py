@@ -71,7 +71,7 @@ def run(cfg, logger, writer):
 
         # training
         model.train()
-        scheduler.step()
+        scheduler.step(ep)
 
         train_loss_meter.reset()
         for i, sample in enumerate(train_loader):
@@ -115,7 +115,7 @@ def run(cfg, logger, writer):
                 val_loss_meter.update(loss.item())
 
                 predict = predict.max(1)[1].cpu().numpy()  # [batch_size, h, w]
-                label = label.squeeze(1).cpu().numpy()  # [batch_size, 1, h, w] -> [batch_size, h, w]
+                label = label.cpu().numpy()  # [batch_size, 1, h, w] -> [batch_size, h, w]
                 running_metrics_val.update(label, predict)
 
             # writer.add_scalar('loss / train', train_loss_meter.avg, ep + 1)
@@ -147,7 +147,7 @@ if __name__ == '__main__':
         "--config",
         nargs="?",
         type=str,
-        default="configs/train_sunrgbd.json",
+        default="configs/camvid_linknet.json",
         help="Configuration file to use",
     )
 

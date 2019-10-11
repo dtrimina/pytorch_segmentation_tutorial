@@ -6,6 +6,8 @@ import torch
 import torch.utils.data as data
 import torchvision.transforms.transforms as t
 
+from toolbox.datasets.augmentations import Resize
+
 
 class CamVid(data.Dataset):
 
@@ -24,7 +26,7 @@ class CamVid(data.Dataset):
         self.n_classes = 12  # 包括背景 0~10 + 11
         self.id_background = 11  # 背景类别id
 
-        # 类别平衡权重 compute in database/CamVid/class_weight.py
+        # 类别平衡权重 compute in database/class_weight.py
         self.class_weight = torch.tensor([5.792034808361155, 4.440287727094176, 34.021664627309704,  # method in linknet
                                           3.4469004372298953, 15.911943517293647, 9.020235851219086,
                                           32.01377375777377, 32.47892445011425, 13.207140888906824,
@@ -64,6 +66,8 @@ class CamVid(data.Dataset):
 
         if self.augmentations is not None and self.mode == 'train':
             sample = self.augmentations(sample)
+        if self.mode in ['val', 'test']:
+            sample = Resize(self.image_size)(sample)
         sample = self.normalize(sample)
         sample['label_path'] = label_path.strip().split('/')[-1]  # 后期保存预测图时的文件名和label文件名一致
         return sample
@@ -72,7 +76,6 @@ class CamVid(data.Dataset):
 
         # image transform
         image = sample['image']
-        image = t.Resize(self.image_size)(image)
         image = np.asarray(image, dtype=np.float64)  # 3 channel, 0~255
         image /= 255.
 
@@ -85,13 +88,8 @@ class CamVid(data.Dataset):
         sample['image'] = torch.from_numpy(image).float()
 
         # label transform
-        label = sample['label']
-        classes = np.unique(np.asarray(label))
-        label = t.Resize(self.image_size, interpolation=Image.NEAREST)(label)
-        label = np.asarray(label, dtype=np.int)
-        assert np.all(classes == np.unique(label))  # 尺寸变换后,类别不变
-        label = torch.from_numpy(label).long()
-        sample['label'] = label
+        label = np.asarray(sample['label'], dtype=np.int)
+        sample['label'] = torch.from_numpy(label).long()
 
         return sample
 
