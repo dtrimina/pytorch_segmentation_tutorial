@@ -1,7 +1,9 @@
 __pycache__/
 *.pyc
 
-/run/camvid/*
+/run/*
+!/run/logs.txt
+
 /.idea/
 
 /database/CamVid/train/*
@@ -11,3 +13,6 @@ __pycache__/
 /database/CamVid/test/*
 /database/CamVid/testannot/*
 
+/database/SUNRGBD/sunrgbd_test_image/*
+/database/SUNRGBD/sunrgbd_train_image/*
+/database/SUNRGBD/sunrgbd_train_test_labels/*
