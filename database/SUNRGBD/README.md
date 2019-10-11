@@ -4,11 +4,11 @@
 
 我们使用处理好的RGBD images and labels by https://github.com/ankurhanda/sunrgbd-meta-data. 下载好后将图片解压到相应的文件夹。
 
-- sunrgbd_train_image -> [download](http://www.doc.ic.ac.uk/~ahanda/SUNRGBD-train_images.tgz)
+- SUNRGBD/sunrgbd_train_image/ -> [download](http://www.doc.ic.ac.uk/~ahanda/SUNRGBD-train_images.tgz)
 
-- sunrgbd_test_image  -> [download](http://www.doc.ic.ac.uk/~ahanda/SUNRGBD-test_images.tgz)
+- SUNRGBD/sunrgbd_test_image/  -> [download](http://www.doc.ic.ac.uk/~ahanda/SUNRGBD-test_images.tgz)
 
-- sunrgbd_train_test_labels  -> [download](https://github.com/ankurhanda/sunrgbd-meta-data/blob/master/sunrgbd_train_test_labels.tar.gz)
+- SUNRGBD/sunrgbd_train_test_labels/  -> [download](https://github.com/ankurhanda/sunrgbd-meta-data/blob/master/sunrgbd_train_test_labels.tar.gz)
 
 train.txt && test.txt 每一行数据为  
 image_path,label_path
