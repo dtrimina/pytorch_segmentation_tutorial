@@ -1,10 +1,10 @@
 {
-    "model_name": "segnet",
-    "n_classes": 12,
+    "model_name": "linknet",
+    "n_classes": 38,
 
-    "dataset": "camvid",
-    "image_h": 360,
-    "image_w": 480,
+    "dataset": "sunrgbd",
+    "image_h": 480,
+    "image_w": 640,
     "augmentation": "default",
     "use_pt_norm": "True",
 

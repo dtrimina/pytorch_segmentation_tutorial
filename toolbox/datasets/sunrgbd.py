@@ -6,6 +6,8 @@ import torch
 import torch.utils.data as data
 import torchvision.transforms.transforms as t
 
+from toolbox.datasets.augmentations import Resize
+
 
 class SUNRGBD(data.Dataset):
 
@@ -22,6 +24,17 @@ class SUNRGBD(data.Dataset):
         self.mode = mode
         self.image_size = image_size
         self.n_classes = 38  # 包括背景
+        self.id_background = 0  # 背景类别id
+
+        # 类别平衡权重 compute in database/class_weight.py
+        self.class_weight = torch.tensor([ 4.23205628 , 4.94571675 , 5.57862381 , 24.44534956, 19.90010511, 9.76202942,
+                                           22.72040184, 13.61414125, 25.39246383, 23.29261424, 41.05365979, 40.27980692,
+                                           37.62904508, 43.93062852, 26.9015599 , 44.38626841, 36.50666673, 41.7974345,
+                                           40.35631839, 40.49076758, 49.75468725, 45.17068264, 36.14867496, 44.26064598,
+                                           45.11657338, 46.7591883 , 44.88959106, 47.28874519, 49.99583172, 41.15698097,
+                                           40.6678578 , 48.31438898, 48.35523311, 45.27907191, 43.24865403, 45.57560593,
+                                           46.90471312, 46.6266927 ],
+                                         requires_grad=False)
 
         # 输入数据处理流程为 augmentations + transform
 
@@ -46,7 +59,7 @@ class SUNRGBD(data.Dataset):
         return len(self.image_depth_labels)
 
     def __getitem__(self, index):
-        image_path, _, label_path = self.image_depth_labels[index].strip().split(',')
+        image_path, label_path = self.image_depth_labels[index].strip().split(',')
         image = Image.open(os.path.join(self.root, image_path))  # RGB 0~255
         label = Image.open(os.path.join(self.root, label_path))  # 1 channel 0~37
 
@@ -55,8 +68,10 @@ class SUNRGBD(data.Dataset):
             'label': label,
         }
 
-        if self.augmentations is not None:
+        if self.augmentations is not None and self.mode == 'train':
             sample = self.augmentations(sample)
+        if self.mode in ['test']:
+            sample = Resize(self.image_size)(sample)
         sample = self.normalize(sample)
         sample['label_path'] = label_path.strip().split('/')[-1]  # 后期保存预测图时的文件名和label文件名一致
         return sample
@@ -65,7 +80,6 @@ class SUNRGBD(data.Dataset):
 
         # image transform
         image = sample['image']
-        image = t.Resize(self.image_size)(image)
         image = np.asarray(image, dtype=np.float64)  # 3 channel, 0~255
         image /= 255.
 
@@ -78,15 +92,30 @@ class SUNRGBD(data.Dataset):
         sample['image'] = torch.from_numpy(image).float()
 
         # label transform
-        label = sample['label']
-        classes = np.unique(np.asarray(label))
-        label = t.Resize(self.image_size, interpolation=Image.NEAREST)(label)
-        label = np.asarray(label, dtype=np.int)
-        assert np.all(classes == np.unique(label))  # 尺寸变换后,类别不变
-        label = torch.from_numpy(label).long()
-        sample['label'] = label
+        label = np.asarray(sample['label'], dtype=np.int)
+        sample['label'] = torch.from_numpy(label).long()
 
         return sample
+
+    @property
+    def cmap(self):
+        # cmap in RedNet
+        return [(0, 0, 0),
+                # 0=background
+                (148, 65, 137), (255, 116, 69), (86, 156, 137),
+                (202, 179, 158), (155, 99, 235), (161, 107, 108),
+                (133, 160, 103), (76, 152, 126), (84, 62, 35),
+                (44, 80, 130), (31, 184, 157), (101, 144, 77),
+                (23, 197, 62), (141, 168, 145), (142, 151, 136),
+                (115, 201, 77), (100, 216, 255), (57, 156, 36),
+                (88, 108, 129), (105, 129, 112), (42, 137, 126),
+                (155, 108, 249), (166, 148, 143), (81, 91, 87),
+                (100, 124, 51), (73, 131, 121), (157, 210, 220),
+                (134, 181, 60), (221, 223, 147), (123, 108, 131),
+                (161, 66, 179), (163, 221, 160), (31, 146, 98),
+                (99, 121, 30), (49, 89, 240), (116, 108, 9),
+                (161, 176, 169), (80, 29, 135), (177, 105, 197),
+                (139, 110, 246)]  # 38
 
 
 if __name__ == '__main__':

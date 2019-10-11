@@ -5,7 +5,7 @@
     "dataset": "camvid",
     "image_h": 352,
     "image_w": 480,
-    "augmentation": "None",
+    "augmentation": "default",
     "use_pt_norm": "True",
 
 
