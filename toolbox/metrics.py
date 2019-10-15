@@ -6,7 +6,7 @@ import numpy as np
 class runningScore(object):
     '''
         n_classes: database的类别,包括背景
-        ignore_index: 需要忽略的类别id,一般为背景id, eg. CamVid.id_background
+        ignore_index: 需要忽略的类别id,一般为未标注id, eg. CamVid.id_unlabel
     '''
 
     def __init__(self, n_classes, ignore_index=-100):
@@ -29,10 +29,10 @@ class runningScore(object):
 
     def get_scores(self):
         """Returns accuracy score evaluation result.
-            - overall accuracy
-            - mean accuracy
-            - mean IU
-            - fwavacc
+            - pixel_acc:
+            - class_acc: class mean acc
+            - mIou :     mean intersection over union
+            - fwIou:     frequency weighted intersection union
         """
 
         hist = self.confusion_matrix
@@ -43,18 +43,18 @@ class runningScore(object):
         acc_cls = np.diag(hist) / hist.sum(axis=1)
         acc_cls = np.nanmean(acc_cls)
         iu = np.diag(hist) / (hist.sum(axis=1) + hist.sum(axis=0) - np.diag(hist))
-        mean_iu = np.nanmean(iu)
+        mean_iou = np.nanmean(iu)
         freq = hist.sum(axis=1) / hist.sum()
-        fwavacc = (freq[freq > 0] * iu[freq > 0]).sum()
+        fw_iou = (freq[freq > 0] * iu[freq > 0]).sum()
 
         cls_iu = dict(zip(range(self.n_classes), iu))
 
         return (
             {
-                "gAcc: ": acc,
-                "mAcc: ": acc_cls,
-                # "FreqW Acc : \t": fwavacc,
-                "mIoU: ": mean_iu,
+                "pixel_acc: ": acc,
+                "class_acc: ": acc_cls,
+                "mIou: ": mean_iou,
+                "fwIou: ": fw_iou,
             },
             cls_iu,
         )

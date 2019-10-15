@@ -1,5 +1,5 @@
 {
-    "model_name": "linknet",
+    "model_name": "unet",
     "n_classes": 38,
 
     "dataset": "sunrgbd",
@@ -11,15 +11,15 @@
 
     "loss": "crossentropyloss2D",
 
-    "epoch": 120,
+    "epoch": 300,
 
     "lr": 1e-4,
-    "lr_decay_steps": 40,
+    "lr_decay_steps": 100,
     "lr_decay_gamma": 0.1,
     "weight_decay": 1e-3,
 
-    "batch_size": 4,
+    "batch_size": 16,
     "num_workers": 4,
 
-    "gpu_ids": "0"
+    "gpu_ids": "0123"
 }

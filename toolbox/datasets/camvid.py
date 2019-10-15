@@ -24,7 +24,7 @@ class CamVid(data.Dataset):
         self.mode = mode
         self.image_size = image_size
         self.n_classes = 12  # 包括背景 0~10 + 11
-        self.id_background = 11  # 背景类别id
+        self.id_unlabel = 11  # unlabel id
 
         # 类别平衡权重 compute in database/class_weight.py
         self.class_weight = torch.tensor([5.792034808361155, 4.440287727094176, 34.021664627309704,  # method in linknet
@@ -95,18 +95,18 @@ class CamVid(data.Dataset):
 
     @property
     def cmap(self):
-        return [[128, 128, 128],  # Sky 0
-                [128, 0, 0],  # Building 1
-                [192, 192, 128],  # Pole 2
-                [128, 64, 128],  # Road 3
-                [60, 40, 222],  # Pavement 4
-                [128, 128, 0],  # Tree 5
-                [192, 128, 128],  # SignSymbol 6
-                [64, 64, 128],  # Fence 7
-                [64, 0, 128],  # Car 8
-                [64, 64, 0],  # Pedestrian 9
-                [0, 128, 192],   # Bicyclist 10
-                [0, 0, 0],  # Unlabelled 11
+        return [(128, 128, 128),  # Sky 0
+                (128, 0  , 0  ),  # Building 1
+                (192, 192, 128),  # Pole 2
+                (128, 64 , 128),  # Road 3
+                (60 , 40 , 222),  # Pavement 4
+                (128, 128, 0  ),  # Tree 5
+                (192, 128, 128),  # SignSymbol 6
+                (64 , 64 , 128),  # Fence 7
+                (64 , 0  , 128),  # Car 8
+                (64 , 64 , 0  ),  # Pedestrian 9
+                (0  , 128, 192),   # Bicyclist 10
+                (0  , 0  , 0  ),  # Unlabelled 11
                 ]
 
 

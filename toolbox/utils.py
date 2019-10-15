@@ -1,4 +1,5 @@
 import numpy as np
+import torch
 
 
 def color_map(N=256, normalized=False):
@@ -59,5 +60,30 @@ def class_to_RGB(label, N, cmap=None, normalized=False):
     return label_color
 
 
+def tensor_classes_to_RGBs(label, N, cmap=None):
+
+    '''used in tensorboard'''
+
+    if cmap is None:
+        cmap = color_map(N)
+    else:
+        cmap = np.asarray(cmap)
+
+    label = label.clone().cpu().numpy()  # (batch_size, H, W)
+    ctRGB = np.vectorize(lambda x: tuple(cmap[int(x)].tolist()))
+
+    colored = np.asarray(ctRGB(label)).astype(np.float32)  # (batch_size, 3, H, W)
+    colored = colored.squeeze()
+
+    try:
+        return torch.from_numpy(colored.transpose([1, 0, 2, 3]))
+    except ValueError:
+        return torch.from_numpy(colored[np.newaxis, ...])
+
+
 if __name__ == '__main__':
-    pass
+    a = torch.randint(0, 10, (2, 50, 50))
+    out = tensor_classes_to_RGBs(a, 10)
+    print(out.shape)
+
+    # print(out)

@@ -24,7 +24,7 @@ class SUNRGBD(data.Dataset):
         self.mode = mode
         self.image_size = image_size
         self.n_classes = 38  # 包括背景
-        self.id_background = 0  # 背景类别id
+        self.id_unlabel = 0  # unlabel id
 
         # 类别平衡权重 compute in database/class_weight.py
         self.class_weight = torch.tensor([ 4.23205628 , 4.94571675 , 5.57862381 , 24.44534956, 19.90010511, 9.76202942,

@@ -1,6 +1,6 @@
 {
     "model_name": "unet",
-    "n_classes": 38,
+    "n_classes": 12,
 
     "dataset": "sunrgbd",
     "image_h": 480,
@@ -18,8 +18,8 @@
     "lr_decay_gamma": 0.1,
     "weight_decay": 1e-3,
 
-    "batch_size": 16,
+    "batch_size": 4,
     "num_workers": 4,
 
-    "gpu_ids": "0123"
+    "gpu_ids": "0"
 }
