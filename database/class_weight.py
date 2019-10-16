@@ -13,7 +13,7 @@ def count_classes(root, n_classes):
     for image in os.listdir(root):
         image = Image.open(os.path.join(root, image))
         image = np.asarray(image).reshape(-1)
-        num = np.bincount(image)
+        num = np.bincount(image, minlength=n_classes)
         num_classes += num
 
     return num_classes
@@ -57,3 +57,8 @@ if __name__ == '__main__':
     # print(weight)
 
     # compute ADE20k weight
+    root = 'ADEChallengeData2016/annotations/training'
+    n_classes = 151
+    weight = linknet_class_weight(count_classes(root, n_classes))
+    print(weight)
+

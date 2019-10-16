@@ -1,12 +1,14 @@
 from toolbox.datasets.camvid import CamVid
 from toolbox.datasets.sunrgbd import SUNRGBD
+from toolbox.datasets.cityscapes import Cityscapes
+from toolbox.datasets.ade20k import ADE20K
 from toolbox.datasets.augmentations import Compose, Resize, CenterCrop, RandomScale, RandomResizedCrop,\
     Lambda, RandomApply, RandomChoice, RandomOrder, RandomCrop, RandomHorizontalFlip, \
     RandomVerticalFlip, ColorJitter, RandomRotation, Grayscale, RandomGrayscale
 
 
 def get_dataset(cfg):
-    assert cfg['dataset'] in ['camvid', 'sunrgbd']
+    assert cfg['dataset'] in ['camvid', 'sunrgbd', 'cityscapes', 'ade20k']
     assert cfg['use_pt_norm'] in ['True' or 'False']
 
     if cfg['augmentation'] == 'default':
@@ -40,5 +42,9 @@ def get_dataset(cfg):
         return CamVid(mode='train', **args), CamVid(mode='val', **args), CamVid(mode='test', **args)
     elif cfg['dataset'] == 'sunrgbd':
         return SUNRGBD(mode='train', **args), SUNRGBD(mode='test', **args)
+    elif cfg['dataset'] == 'cityscapes':
+        return Cityscapes(mode='train', **args), Cityscapes(mode='val', **args)
+    elif cfg['dataset'] == 'ade20k':
+        return ADE20K(mode='train', **args), ADE20K(mode='val', **args)
     else:
         return
