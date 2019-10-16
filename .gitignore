@@ -16,3 +16,9 @@ __pycache__/
 /database/SUNRGBD/sunrgbd_test_image/*
 /database/SUNRGBD/sunrgbd_train_image/*
 /database/SUNRGBD/sunrgbd_train_test_labels/*
+
+/database/ADEChallengeData2016/annotations/*
+/database/ADEChallengeData2016/images/*
+
+/database/Cityscapes/gtFine/*
+/database/Cityscapes/leftImg8bit/*

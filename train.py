@@ -11,12 +11,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
+from torchvision.utils import make_grid
 
 from toolbox.datasets import get_dataset
 from toolbox.log import get_logger
 from toolbox.models import get_model
 from toolbox.loss import get_loss
 from toolbox.metrics import averageMeter, runningScore
+from toolbox.utils import tensor_classes_to_RGBs
 
 
 def run(cfg, logger, writer):
@@ -51,14 +53,14 @@ def run(cfg, logger, writer):
     optimizer = torch.optim.Adam(model.parameters(), lr=cfg['lr'], weight_decay=cfg['weight_decay'])
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, cfg['lr_decay_steps'], gamma=cfg['lr_decay_gamma'])
 
-    # 损失函数 & 类别权重平衡 & 训练时是否忽略背景
+    # 损失函数 & 类别权重平衡 & 训练时包含unlabel
     logger.info(f'Conf | use loss function {cfg["loss"]}')
-    criterion = get_loss(cfg, weight=trainset.class_weight, ignore_index=trainset.id_background).to(cfg['device'])
+    criterion = get_loss(cfg, weight=trainset.class_weight).to(cfg['device'])
 
-    # 指标
+    # 指标 包含unlabel
     train_loss_meter = averageMeter()
     val_loss_meter = averageMeter()
-    running_metrics_val = runningScore(cfg['n_classes'], ignore_index=valset.id_background)
+    running_metrics_val = runningScore(cfg['n_classes'])
 
     iter = 0
     best_val_loss_meter = np.Inf  # 保存验证集loss最好模型
@@ -95,6 +97,17 @@ def run(cfg, logger, writer):
             if (i + 1) % 50 == 0:
                 logger.info(f'Iter | [{ep + 1:3d}/{cfg["epoch"]}] [{i + 1:4d}/'
                             f'{len(train_loader)}] [{iter:10d}] train loss is {train_loss_meter.avg: .8f}')
+                for name, param in model.named_parameters():
+                    writer.add_histogram(name, param.clone().cpu().data.numpy(), iter, bins='doane')
+                grid_image = make_grid(image[:3].clone().cpu(), 3, normalize=True)
+                writer.add_image('image', grid_image, iter)
+                grid_image = make_grid(tensor_classes_to_RGBs(torch.max(predict[:3], 1)[1], cfg['n_classes'], trainset.cmap), 3, normalize=False,
+                                       range=(0, 255))
+                writer.add_image('Predicted label', grid_image, iter)
+                grid_image = make_grid(tensor_classes_to_RGBs(label[:3], cfg['n_classes'], trainset.cmap), 3, normalize=False, range=(0, 255))
+                writer.add_image('Groundtruth label', grid_image, iter)
+                writer.add_scalar('train CrossEntropyLoss', loss.data, global_step=iter)
+                writer.add_scalar('Learning rate', scheduler.get_lr()[0], global_step=iter)
 
         # val
         with torch.no_grad():
@@ -118,8 +131,11 @@ def run(cfg, logger, writer):
                 label = label.cpu().numpy()  # [batch_size, 1, h, w] -> [batch_size, h, w]
                 running_metrics_val.update(label, predict)
 
-            # writer.add_scalar('loss / train', train_loss_meter.avg, ep + 1)
-            # writer.add_scalar('loss / val', val_loss_meter.avg, ep + 1)
+            writer.add_scalars('loss / epoch', {
+                'train_loss': train_loss_meter.avg,
+                'val_loss': val_loss_meter.avg
+            }, ep + 1)
+
             logger.info(f'Test | [{ep + 1:3d}/{cfg["epoch"]}] loss:train/val/val_best='
                         f'{train_loss_meter.avg:.8f}/{val_loss_meter.avg:.8f}/{best_val_loss_meter:.8f}')
 
@@ -128,13 +144,11 @@ def run(cfg, logger, writer):
             for key, value in score.items():
                 logger.info(f'Test | [{ep + 1:3d}/{cfg["epoch"]}] {key}{value}')
 
+            writer.add_scalars('metrics', score, ep + 1)
+
             # 如果结果最好 保存模型
-            if val_loss_meter.avg < best_val_loss_meter:
-                best_val_loss_meter = val_loss_meter.avg
-                save_state_dict = model.module.state_dict() if len(gpu_ids) > 1 else model.state_dict()
-                torch.save(save_state_dict, os.path.join(cfg['logdir'], 'best_val_loss.pth'))
-            if score["mIoU: "] > best_val_miou_meter:
-                best_val_miou_meter = score["mIoU: "]
+            if score["mIou: "] > best_val_miou_meter:
+                best_val_miou_meter = score["mIou: "]
                 save_state_dict = model.module.state_dict() if len(gpu_ids) > 1 else model.state_dict()
                 torch.save(save_state_dict, os.path.join(cfg['logdir'], 'best_val_miou.pth'))
 

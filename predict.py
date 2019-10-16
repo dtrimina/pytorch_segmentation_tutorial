@@ -16,7 +16,7 @@ from toolbox.utils import class_to_RGB
 
 
 def predict(dataset, runid, use_pth='best_val_miou.pth', target_size=None, save_predict=False):
-    assert use_pth in ['best_val_loss.pth', 'best_val_miou.pth']
+    assert use_pth in ['best_val_miou.pth']
 
     logdir = f'run/{dataset}/{runid}'
     files = os.listdir(logdir)
@@ -51,8 +51,8 @@ def predict(dataset, runid, use_pth='best_val_miou.pth', target_size=None, save_
     print(os.path.join(logdir, use_pth))
     model.load_state_dict(torch.load(os.path.join(logdir, use_pth)))
 
-    # metrics
-    running_metrics_val = runningScore(cfg['n_classes'], ignore_index=testset.id_background)
+    # metrics 包括unlabel
+    running_metrics_val = runningScore(cfg['n_classes'])
     time_meter = averageMeter()
 
     # 输出尺寸变化 && 预测图保存路径
@@ -73,7 +73,7 @@ def predict(dataset, runid, use_pth='best_val_miou.pth', target_size=None, save_
             predict = model(image)
 
             predict = predict.max(1)[1].cpu().numpy()  # [1, h, w]
-            label = label.squeeze(1).cpu().numpy()  # [1, 1, h, w] -> [1, h, w]
+            label = label.cpu().numpy()
             running_metrics_val.update(label, predict)
 
             time_meter.update(time.time() - time_start, n=image.size(0))
