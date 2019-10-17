@@ -13,15 +13,15 @@ def get_dataset(cfg):
 
     if cfg['augmentation'] == 'default':
         augmentation = Compose([
-            RandomResizedCrop(size=(cfg['image_h'], cfg['image_w']), scale=(0.85, 1), ratio=(4/5, 5/4)),
+            RandomResizedCrop(size=(cfg['image_h'], cfg['image_w']), scale=(0.5, 1), ratio=(4/5, 5/4)),
             # Resize((cfg['image_h'], cfg['image_w'])),
             # RandomScale(scale=(1, 1.2)),
             # RandomCrop(((cfg['image_h'], cfg['image_w']))),
-            ColorJitter(0.05, 0.05, 0.05, 0.05),
+            # ColorJitter(0.05, 0.05, 0.05, 0.05),
             RandomVerticalFlip(),
             RandomHorizontalFlip(),
             # RandomRotation(5),
-            RandomGrayscale(0.03),
+            # RandomGrayscale(0.03),
         ])
     elif cfg['augmentation'] == 'no':
         # resize 到固定尺寸

@@ -9,6 +9,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.optim.lr_scheduler import LambdaLR
 from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import DataLoader
 from torchvision.utils import make_grid
@@ -18,7 +19,7 @@ from toolbox.log import get_logger
 from toolbox.models import get_model
 from toolbox.loss import get_loss
 from toolbox.metrics import averageMeter, runningScore
-from toolbox.utils import tensor_classes_to_RGBs
+from toolbox.utils import tensor_classes_to_RGBs, color_map
 
 
 def run(cfg, logger, writer):
@@ -48,10 +49,12 @@ def run(cfg, logger, writer):
     model = model.to(cfg["device"])
 
     # 优化器 & 学习率衰减 可根据情况修改
-    logger.info(f'Conf | use optimizer Adam, lr={cfg["lr"]}, weight_decay={cfg["weight_decay"]}')
-    logger.info(f'Conf | use step_lr_scheduler every {cfg["lr_decay_steps"]} steps decay {cfg["lr_decay_gamma"]}')
-    optimizer = torch.optim.Adam(model.parameters(), lr=cfg['lr'], weight_decay=cfg['weight_decay'])
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, cfg['lr_decay_steps'], gamma=cfg['lr_decay_gamma'])
+    logger.info(
+        f'Conf | use optimizer SGD, lr={cfg["lr"]}, momentum={cfg["momentum"]}, weight_decay={cfg["weight_decay"]}')
+    logger.info(f'Conf | use poly learning rate policy power={cfg["power"]}.')
+    optimizer = torch.optim.SGD(model.parameters(), lr=cfg['lr'], momentum=cfg['momentum'],
+                                weight_decay=cfg['weight_decay'])
+    scheduler = LambdaLR(optimizer, lr_lambda=lambda ep: cfg['lr'] * (1 - ep / cfg['epoch']) ** 2)
 
     # 损失函数 & 类别权重平衡 & 训练时包含unlabel
     logger.info(f'Conf | use loss function {cfg["loss"]}')
@@ -63,7 +66,6 @@ def run(cfg, logger, writer):
     running_metrics_val = runningScore(cfg['n_classes'])
 
     iter = 0
-    best_val_loss_meter = np.Inf  # 保存验证集loss最好模型
     best_val_miou_meter = -100  # 保存验证集miou最好模型
 
     logger.info(f'Conf | use epoch {cfg["epoch"]}')
@@ -97,14 +99,15 @@ def run(cfg, logger, writer):
             if (i + 1) % 50 == 0:
                 logger.info(f'Iter | [{ep + 1:3d}/{cfg["epoch"]}] [{i + 1:4d}/'
                             f'{len(train_loader)}] [{iter:10d}] train loss is {train_loss_meter.avg: .8f}')
-                for name, param in model.named_parameters():
-                    writer.add_histogram(name, param.clone().cpu().data.numpy(), iter, bins='doane')
+                cmap = trainset.cmap if hasattr(trainset, 'cmap') else None
                 grid_image = make_grid(image[:3].clone().cpu(), 3, normalize=True)
                 writer.add_image('image', grid_image, iter)
-                grid_image = make_grid(tensor_classes_to_RGBs(torch.max(predict[:3], 1)[1], cfg['n_classes'], trainset.cmap), 3, normalize=False,
+                grid_image = make_grid(tensor_classes_to_RGBs(torch.max(predict[:3], 1)[1], cfg['n_classes'], cmap), 3,
+                                       normalize=False,
                                        range=(0, 255))
                 writer.add_image('Predicted label', grid_image, iter)
-                grid_image = make_grid(tensor_classes_to_RGBs(label[:3], cfg['n_classes'], trainset.cmap), 3, normalize=False, range=(0, 255))
+                grid_image = make_grid(tensor_classes_to_RGBs(label[:3], cfg['n_classes'], cmap), 3, normalize=False,
+                                       range=(0, 255))
                 writer.add_image('Groundtruth label', grid_image, iter)
                 writer.add_scalar('train CrossEntropyLoss', loss.data, global_step=iter)
                 writer.add_scalar('Learning rate', scheduler.get_lr()[0], global_step=iter)
@@ -116,7 +119,6 @@ def run(cfg, logger, writer):
             running_metrics_val.reset()
 
             for i, sample in enumerate(val_loader):
-
                 ################### val edit #######################
                 image = sample['image'].to(cfg['device'])
                 label = sample['label'].to(cfg['device'])
@@ -136,8 +138,8 @@ def run(cfg, logger, writer):
                 'val_loss': val_loss_meter.avg
             }, ep + 1)
 
-            logger.info(f'Test | [{ep + 1:3d}/{cfg["epoch"]}] loss:train/val/val_best='
-                        f'{train_loss_meter.avg:.8f}/{val_loss_meter.avg:.8f}/{best_val_loss_meter:.8f}')
+            logger.info(f'Test | [{ep + 1:3d}/{cfg["epoch"]}] loss:train/val='
+                        f'{train_loss_meter.avg:.8f}/{val_loss_meter.avg:.8f}')
 
             score, class_iou = running_metrics_val.get_scores()
 
@@ -161,7 +163,7 @@ if __name__ == '__main__':
         "--config",
         nargs="?",
         type=str,
-        default="configs/camvid_linknet.json",
+        default="configs/ade20k_unet.json",
         help="Configuration file to use",
     )
 

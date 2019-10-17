@@ -89,7 +89,7 @@ class unet(nn.Module):
 
 
 if __name__ == '__main__':
-    inputs = torch.randn((4, 3, 360, 480)).cuda()
-    model = unet(n_classes=12).cuda()
-    out = model(inputs)
-    print(out.size())
+    from torchsummary import summary
+    model = unet(n_classes=151).cuda()
+
+    summary(model, (3, 224, 224))

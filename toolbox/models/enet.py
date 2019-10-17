@@ -617,7 +617,8 @@ class ENet(nn.Module):
 
 
 if __name__ == '__main__':
-    inputs = torch.randn((2, 3, 360, 480)).cuda()
+    from torchsummary import summary
+
     model = ENet(n_classes=12).cuda()
-    out = model(inputs)
-    print(out.size())
+
+    summary(model, (3, 224, 224))

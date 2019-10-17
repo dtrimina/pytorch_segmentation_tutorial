@@ -83,7 +83,7 @@ def predict(dataset, runid, use_pth='best_val_miou.pth', target_size=None, save_
                 predict = class_to_RGB(predict, N=cfg['n_classes'], cmap=cmap)  # 如果数据集没有给定cmap,使用默认cmap
                 predict = Image.fromarray(predict)
                 if target_size is not None:
-                    predict = t.Resize(target_size)(predict)
+                    predict = t.Resize(target_size, interpolation=Image.NEAREST)(predict)
                 predict.save(os.path.join(save_path, sample['label_path'][0]))
 
     metrics = running_metrics_val.get_scores()
@@ -92,6 +92,7 @@ def predict(dataset, runid, use_pth='best_val_miou.pth', target_size=None, save_
     for k, v in metrics[1].items():
         print(k, v)
     print('inference time per image: ', time_meter.avg)
+    print('inference fps: ', 1 / time_meter.avg)
 
 
 if __name__ == '__main__':

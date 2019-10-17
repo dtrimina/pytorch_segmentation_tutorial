@@ -78,7 +78,7 @@ class ADE20K(data.Dataset):
 
     def __getitem__(self, index):
         image_path, label_path = self.image_depth_labels[index].strip().split(',')
-        image = Image.open(os.path.join(self.root, image_path))  # RGB 0~255
+        image = Image.open(os.path.join(self.root, image_path)).convert('RGB')  # RGB 0~255
         label = Image.open(os.path.join(self.root, label_path))  # 1 channel 0~11
 
         sample = {

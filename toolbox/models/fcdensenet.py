@@ -31,7 +31,7 @@ class DenseLayer(nn.Module):
         self.do = nn.Dropout2d(p=0.2)
 
     def forward(self, x):
-        out0 = F.relu(self.bn(x))
+        out0 = F.relu(self.bn(x), inplace=True)
         out1 = self.conv(out0)
         out2 = self.do(out1)
         concat = torch.cat([x, out2], 1)
@@ -68,7 +68,7 @@ class TransitionDown(nn.Module):
 
     def forward(self, x):
 
-        out0 = F.relu(self.bn(x))
+        out0 = F.relu(self.bn(x), inplace=True)
         out1 = self.conv(out0)
         out2 = self.do(out1)
         pooled = self.pool(out2)
@@ -306,7 +306,9 @@ class DenseNet103(nn.Module):
 
 
 if __name__ == '__main__':
-    inputs = torch.randn((1, 3, 352, 480)).cuda()
-    model = DenseNet103(n_classes=12).cuda()
-    out = model(inputs)
-    print(out.size())
+    from torchsummary import summary
+
+    model = DenseNet103(n_classes=151).cuda()
+
+    # summary(model, (3, 576, 576))
+    summary(model, (3, 448, 448))
