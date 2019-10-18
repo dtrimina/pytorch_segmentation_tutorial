@@ -1,10 +1,10 @@
 {
-    "model_name": "linknet",
+    "model_name": "fcdensenet",
     "n_classes": 20,
 
     "dataset": "cityscapes",
-    "image_h": 512,
-    "image_w": 1024,
+    "image_h": 256,
+    "image_w": 512,
     "augmentation": "default",
     "use_pt_norm": "True",
 
@@ -19,7 +19,7 @@
     "power": 0.9,
 
 
-    "batch_size": 8,
+    "batch_size": 2,
     "num_workers": 4,
 
     "gpu_ids": "0"

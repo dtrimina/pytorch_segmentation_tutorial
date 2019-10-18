@@ -1,5 +1,5 @@
 {
-    "model_name": "segnet",
+    "model_name": "unet",
     "n_classes": 20,
 
     "dataset": "cityscapes",

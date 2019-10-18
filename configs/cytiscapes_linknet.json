@@ -1,5 +1,5 @@
 {
-    "model_name": "enet",
+    "model_name": "linknet",
     "n_classes": 20,
 
     "dataset": "cityscapes",
@@ -19,7 +19,7 @@
     "power": 0.9,
 
 
-    "batch_size": 2,
+    "batch_size": 8,
     "num_workers": 4,
 
     "gpu_ids": "0"
