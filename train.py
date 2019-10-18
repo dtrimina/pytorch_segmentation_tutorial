@@ -54,7 +54,7 @@ def run(cfg, logger, writer):
     logger.info(f'Conf | use poly learning rate policy power={cfg["power"]}.')
     optimizer = torch.optim.SGD(model.parameters(), lr=cfg['lr'], momentum=cfg['momentum'],
                                 weight_decay=cfg['weight_decay'])
-    scheduler = LambdaLR(optimizer, lr_lambda=lambda ep: cfg['lr'] * (1 - ep / cfg['epoch']) ** 2)
+    scheduler = LambdaLR(optimizer, lr_lambda=lambda ep: (1 - ep / cfg['epoch']) ** cfg['power'])
 
     # 损失函数 & 类别权重平衡 & 训练时包含unlabel
     logger.info(f'Conf | use loss function {cfg["loss"]}')
@@ -163,7 +163,7 @@ if __name__ == '__main__':
         "--config",
         nargs="?",
         type=str,
-        default="configs/ade20k_unet.json",
+        default="configs/cytiscapes_drn_c_26.json",
         help="Configuration file to use",
     )
 

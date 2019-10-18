@@ -1,10 +1,10 @@
 {
-    "model_name": "unet",
-    "n_classes": 151,
+    "model_name": "enet",
+    "n_classes": 20,
 
-    "dataset": "ade20k",
-    "image_h": 576,
-    "image_w": 576,
+    "dataset": "cityscapes",
+    "image_h": 512,
+    "image_w": 1024,
     "augmentation": "default",
     "use_pt_norm": "True",
 
@@ -15,7 +15,7 @@
     "momentum": 0.9,
     "weight_decay": 1e-4,
 
-    "epoch": 120,
+    "epoch": 90,
     "power": 0.9,
 
 

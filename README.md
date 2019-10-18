@@ -14,16 +14,16 @@
 
 #### models
 
-The follow result are using default training config on one TAITAN V GPU. Dataset is ADE20k. Input size is 576*576. The following metrics are use state_dict() with the best miou on validation set during training. score=(pixel_acc+miou)/2
+The follow result are using default training config on one TAITAN V GPU. Dataset is Cityscapes. Input size is 512*1024. The following metrics are use state_dict() with the best miou on validation set during training. No multi-scale prediction.
 
-model | paper | code | pixel acc | miou | score | class acc | fwiou | params(fp32) | fps | remarks | 
-:-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:  
-[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1505.04597.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/unet.py) | pixel acc | miou | score | class acc | fwiou | 51.14MB | fps | - |  
-[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1511.00561.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/segnet.py) | pixel acc | miou | score | class acc | fwiou | - | fps | - |  
-[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1707.03718.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/linknet.py) | pixel acc | miou | score | class acc | fwiou | 44.07MB | fps | - |  
-[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1611.09326.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/fcdensenet.py) | pixel acc | miou | score | class acc | fwiou | 35.58MB | fps | - |  
-[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1606.02147v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/enet.py) | pixel acc | miou | score | class acc | fwiou | 1.34MB | fps | - |  
-
+model | paper | code | pixel acc | class acc | miou | fwiou | params(fp32) | fps | remarks | 
+:-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:  
+[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1505.04597.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/unet.py) | 87.1 | 69.8  | 52.9 | 78.5 | 51.14MB | 18.57 | - |  
+[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1511.00561.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/segnet.py) | pixel acc |   |  | fwiou | 117MB | fps | - |  
+[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1707.03718.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/linknet.py) | pixel acc |   |  | fwiou | 44.07MB | fps | - |  
+[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1611.09326.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/fcdensenet.py) | pixel acc |   |  | fwiou | 35.58MB | - | use (256,512) input |  
+[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1606.02147v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/enet.py) | pixel acc |   |  | fwiou | 1.34MB | fps | - |  
+[DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | [paper](http://xxx.itp.ac.cn/pdf/1705.09914v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/drn_c_26.py) | pixel acc | class acc | miou | fwiou | 78.67MB | fps | remarks |   
 
 
 #### project structure 
@@ -59,7 +59,7 @@ model | paper | code | pixel acc | miou | score | class acc | fwiou | params(fp3
 - data augmentation: RandomResizedCrop + RandomFlip
 - input image normalize: ToTensor + Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 - loss function: CrossEntropyLoss + class_weight
-- 120 epoch, SGD optimizer, initial_lr=0.01, poly learning rate policy with power=0.9
+- 90 epoch, SGD optimizer, initial_lr=0.01, poly learning rate policy with power=0.9
 - support multi gpus. (eg. "gpu_ids": "0123")
 
 #### train and predict

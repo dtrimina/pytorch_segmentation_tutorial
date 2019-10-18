@@ -27,10 +27,10 @@ class Cityscapes(data.Dataset):
         self.id_unlabel = 19  # unlabel id , 为了标签连续,将255变成19
 
         # 类别平衡权重 compute in database/class_weight.py
-        self.class_weight = torch.tensor([[3.36258308, 14.0332588, 4.9894646, 39.25158044, 36.5057383, 32.8996697,
+        self.class_weight = torch.tensor([ 3.36258308, 14.0332588, 4.9894646, 39.25158044, 36.5057383, 32.8996697,
                                            46.27562166, 40.67150678, 6.70475007, 33.55271029, 18.51486878, 32.99530091,
                                            47.68301907, 12.69611686, 45.20456246, 45.78191067, 45.82529538, 48.40734227,
-                                           42.75923387, 7.88855432, ]], requires_grad=False)
+                                           42.75923387, 7.88855432, ], requires_grad=False)
 
         # 输入数据处理流程为 augmentations + transform
 
