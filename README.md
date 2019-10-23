@@ -17,7 +17,7 @@
 The follow result are using default training config on one TAITAN V GPU. Dataset is Cityscapes. Input size is 512*1024. Background is included, so it has 19+1=20 classes. The following metrics are use state_dict() with the best miou on validation set during training. No multi-scale prediction.
 
 model | paper | code | params size(fp32) |  
-:-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:  
+:-: | :-: | :-: | :-:   
 [unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1505.04597.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/unet.py) | 51.14MB |  
 [segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1511.00561.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/segnet.py) | 117MB |   
 [LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1707.03718.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/linknet.py) | 44.07MB |   
