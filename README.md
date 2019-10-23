@@ -14,16 +14,16 @@
 
 #### models
 
-The follow result are using default training config on one TAITAN V GPU. Dataset is Cityscapes. Input size is 512*1024. The following metrics are use state_dict() with the best miou on validation set during training. No multi-scale prediction.
+The follow result are using default training config on one TAITAN V GPU. Dataset is Cityscapes. Input size is 512*1024. Background is included, so it has 19+1=20 classes. The following metrics are use state_dict() with the best miou on validation set during training. No multi-scale prediction.
 
-model | paper | code | pixel acc | class acc | miou | fwiou | params(fp32) | fps | remarks | 
+model | paper | code | params size(fp32) |  
 :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:  
-[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1505.04597.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/unet.py) | 87.1 | 69.8  | 52.9 | 78.5 | 51.14MB | 18.57 | - |  
-[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1511.00561.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/segnet.py) | pixel acc |   |  | fwiou | 117MB | fps | - |  
-[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1707.03718.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/linknet.py) | pixel acc |   |  | fwiou | 44.07MB | fps | - |  
-[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1611.09326.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/fcdensenet.py) | pixel acc |   |  | fwiou | 35.58MB | - | use (256,512) input |  
-[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1606.02147v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/enet.py) | pixel acc |   |  | fwiou | 1.34MB | fps | - |  
-[DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | [paper](http://xxx.itp.ac.cn/pdf/1705.09914v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/drn_c_26.py) | pixel acc | class acc | miou | fwiou | 78.67MB | fps | remarks |   
+[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1505.04597.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/unet.py) | 51.14MB |  
+[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1511.00561.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/segnet.py) | 117MB |   
+[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1707.03718.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/linknet.py) | 44.07MB |   
+[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1611.09326.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/fcdensenet.py) | 35.58MB |  
+[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1606.02147v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/enet.py) | 1.34MB |  
+[DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | [paper](http://xxx.itp.ac.cn/pdf/1705.09914v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/drn_c_26.py) | 78.67MB |   
 
 
 #### project structure 
