@@ -1,9 +1,9 @@
 {
-    "model_name": "drn_c_26",
+    "model_name": "unet",
 
     "dataset": "ade20k",
-    "root": "/home/user/Desktop/lxy/database/NYUv2",
-    "n_classes": 41,
+    "root": "/home/dtrimina/database/ADEChallengeData2016",
+    "n_classes": 151,
     "id_unlabel": 0,
     "brightness": 0.5,
     "contrast": 0.5,
@@ -25,6 +25,6 @@
     "epochs": 90,
 
     "loss": "crossentropy",
-    "class_weight": "enet"
+    "class_weight": "no"
 }
 

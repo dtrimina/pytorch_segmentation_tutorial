@@ -26,11 +26,10 @@ model | paper | code | params size(fp32) |
 
 #### default training config  
 
-- data augmentation: RandomResizedCrop + RandomFlip
+- data augmentation: colorjit + randomhflip + randomscale + randomcrop  
 - input image normalize: ToTensor + Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-- loss function: CrossEntropyLoss + class_weight
-- 90 epoch, SGD optimizer, initial_lr=0.01, poly learning rate policy with power=0.9
-- support multi gpus. (eg. "gpu_ids": "0123")
+- loss function: CrossEntropyLoss + class_weight  
+- 90 epoch, Adam optimizer, initial_lr=0.02, poly learning rate policy with power=0.9  
 
 #### train and evaluate
 
@@ -39,10 +38,10 @@ model | paper | code | params size(fp32) |
 # prepare dataset CamVid or SUNRGBD or ...
 
 # train
-python train.py --config=configs/[your config].json
+python -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/ade20k_unet.json
 
 # predict
-python predict.py -d [dataset] -i [run_id] [[-s]]
+python evaluate.py --logdir [run logdir] [-s] 
 
 # Moreover, you can add [your configs].json in run_tasks.sh
 sh run_tasks.sh
