@@ -163,7 +163,7 @@ if __name__ == '__main__':
         "--config",
         nargs="?",
         type=str,
-        default="configs/cytiscapes_drn_c_26.json",
+        default="configs/ade20k_drn_c_26.json",
         help="Configuration file to use",
     )
 

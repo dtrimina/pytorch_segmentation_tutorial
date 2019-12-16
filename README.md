@@ -1,9 +1,9 @@
-## simple pytorch segmentation tutorial
+## simple pytorch segmentation tutorial with apex mixed precision and distributed training
 
 #### version  
-- python 3.7.3
-- torch 1.1.0
-- torchvision 0.3.0
+- python 3.7.5
+- torch 1.3.0
+- torchvision 0.4.1
 
 #### database  
 
@@ -13,8 +13,6 @@
 - [x] [ADE20k](https://github.com/dtrimina/pytorch_segmentation_tutorial/tree/master/database/ADEChallengeData2016): ADE20K dataset is a challenge scence parsing dataset providing **150** class dense labels, which consists of **20K/2K/3K** images for training/validation/test.
 
 #### models
-
-The follow result are using default training config on one TAITAN V GPU. Dataset is Cityscapes. Input size is 512*1024. Background is included, so it has 19+1=20 classes. The following metrics are use state_dict() with the best miou on validation set during training. No multi-scale prediction.
 
 model | paper | code | params size(fp32) |  
 :-: | :-: | :-: | :-:   
@@ -26,34 +24,6 @@ model | paper | code | params size(fp32) |
 [DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | [paper](http://xxx.itp.ac.cn/pdf/1705.09914v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/drn_c_26.py) | 78.67MB |   
 
 
-#### project structure 
-
-```
--configs  
-    -template.json    #模板配置文件  
--database  
-    -Camvid/...  
--run
-    -[dataset1]
-        -[log1]/
-        -[log2]/ 
--toolbox  
-    -datasets/
-        -augmentations.py
-        -[dataset1.py]
-        -[dataset2.py]
-    -loss/  
-    -models/    # 可是实现自己的model并在__init__.py中导入  
-        -[model1.py]
-        -[model2.py]
-    -log.py     # 获取日志logger  
-    -metrics.py # 使用混淆矩阵计算metrics,ignore_index=id_background忽略背景
-    -utils.py   # 默认的color_map以及上色
--train.py       # 训练保存模型在run/目录  
--predict.py     # 依据run/[database]/[run_id]预测  
--run_tasks.sh   # 按照配置文件批量训练  
-```
-
 #### default training config  
 
 - data augmentation: RandomResizedCrop + RandomFlip
@@ -62,7 +32,7 @@ model | paper | code | params size(fp32) |
 - 90 epoch, SGD optimizer, initial_lr=0.01, poly learning rate policy with power=0.9
 - support multi gpus. (eg. "gpu_ids": "0123")
 
-#### train and predict
+#### train and evaluate
 
 ```
 # edit config.json based on configs/template.json
@@ -80,4 +50,6 @@ sh run_tasks.sh
 ```
 
 #### reference
-- https://github.com/meetshah1995/pytorch-semseg
+- https://github.com/meetshah1995/pytorch-semseg  
+- https://nvidia.github.io/apex/#  
+- https://github.com/nvidia/apex  
