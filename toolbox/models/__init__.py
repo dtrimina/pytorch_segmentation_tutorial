@@ -7,7 +7,7 @@ from toolbox.models.drn_c_26 import DRNSeg_C_26
 
 
 def get_model(cfg):
-    assert cfg['model_name'] in ['unet']
+    assert cfg['model_name'] in ['unet', 'drn_c_26']
 
     if cfg['model_name'] == 'unet':
         return unet(n_classes=cfg['n_classes'])

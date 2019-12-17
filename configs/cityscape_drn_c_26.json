@@ -3,7 +3,7 @@
 
     "dataset": "cityscapes",
     "root": "/home/dtrimina/database/Cityscapes",
-    "n_classes": 151,
+    "n_classes": 20,
     "id_unlabel": 0,
     "brightness": 0.5,
     "contrast": 0.5,

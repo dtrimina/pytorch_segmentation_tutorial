@@ -1,5 +1,3 @@
-import random
-import random
 import os
 import shutil
 import json
@@ -70,15 +68,19 @@ def run(args):
 
     params_list = model.parameters()
     optimizer = torch.optim.Adam(params_list, lr=cfg['lr_start'], weight_decay=cfg['weight_decay'])
-    scheduler = LambdaLR(optimizer, lr_lambda=lambda ep: (1 - ep / cfg['epochs']) ** 0.9)
+    # scheduler = LambdaLR(optimizer, lr_lambda=lambda ep: (1 - ep / cfg['epochs']) ** 0.9)
 
     model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
     if args.distributed:
         model = apex.parallel.DistributedDataParallel(model, delay_allreduce=True)
 
     # class weight 计算
-    classweight = ClassWeight(cfg['class_weight'])
-    class_weight = classweight.get_weight(train_loader, cfg['n_classes'])
+    if hasattr(trainset, 'class_weight'):
+        print('using classweight in dataset')
+        class_weight = trainset.class_weight
+    else:
+        classweight = ClassWeight(cfg['class_weight'])
+        class_weight = classweight.get_weight(train_loader, cfg['n_classes'])
     class_weight = torch.from_numpy(class_weight).float().to(device)
     class_weight[cfg['id_unlabel']] = 0
 
@@ -119,18 +121,13 @@ def run(args):
                 reduced_loss = loss
             train_loss_meter.update(reduced_loss.item())
 
-        scheduler.step(ep)
+        # scheduler.step(ep)
 
         if args.local_rank == 0:
-            logger.info(f'Iter | [{ep + 1:3d}/{cfg["epochs"]}] lr={scheduler.get_lr()[0]:.8f} '
-                        f'train={train_loss_meter.avg:.5f}')
+            logger.info(f'Iter | [{ep + 1:3d}/{cfg["epochs"]}] train loss={train_loss_meter.avg:.5f}')
             save_ckpt(logdir, model)
 
     save_ckpt(logdir, model)
-
-    # from evaluate import evaluate
-    # evaluate(logdir)
-
 
 
 if __name__ == '__main__':
@@ -142,7 +139,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--config",
         type=str,
-        default="configs/ade20k_unet.json",
+        default="configs/cityscape_drn_c_26.json",
         help="Configuration file to use",
     )
     parser.add_argument(
