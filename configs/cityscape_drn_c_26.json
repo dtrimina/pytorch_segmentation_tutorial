@@ -1,8 +1,8 @@
 {
     "model_name": "drn_c_26",
 
-    "dataset": "ade20k",
-    "root": "/home/dtrimina/database/ADEChallengeData2016",
+    "dataset": "cityscapes",
+    "root": "/home/dtrimina/database/Cityscapes",
     "n_classes": 151,
     "id_unlabel": 0,
     "brightness": 0.5,
@@ -10,7 +10,7 @@
     "saturation": 0.5,
     "p": 0.5,
     "scales_range": "0.5 2.0",
-    "crop_size": "640 640",
+    "crop_size": "736 736",
     "eval_scales": "0.5 0.75 1.0 1.25 1.5 1.75",
     "eval_flip": "true",
 
