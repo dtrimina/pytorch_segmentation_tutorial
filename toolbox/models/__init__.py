@@ -11,3 +11,6 @@ def get_model(cfg):
 
     if cfg['model_name'] == 'unet':
         return unet(n_classes=cfg['n_classes'])
+
+    if cfg['model_name'] == 'drn_c_26':
+        return DRNSeg_C_26(n_classes=cfg['n_classes'])

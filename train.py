@@ -34,24 +34,25 @@ def run(args):
     with open(args.config, 'r') as fp:
         cfg = json.load(fp)
 
-    logdir = f'run/{time.strftime("%Y-%m-%d-%H-%M")}-{random.randint(1000, 10000)}'
+    logdir = f'run/{time.strftime("%Y-%m-%d-%H-%M")}'
     args.logdir = logdir
     if not os.path.exists(logdir):
         os.makedirs(logdir)
     shutil.copy(args.config, logdir)
 
     logger = get_logger(logdir)
-    logger.info(f'Conf | use logdir {logdir}')
+    if args.local_rank == 0:
+        logger.info(f'Conf | use logdir {logdir}')
 
     model = get_model(cfg)
     trainset, *testset = get_dataset(cfg)
-    trainset.image_depth_labels = trainset.image_depth_labels[:100]
     device = torch.device('cuda')
 
     args.distributed = False
     if 'WORLD_SIZE' in os.environ:
         args.distributed = int(os.environ['WORLD_SIZE']) > 1
-        print(f"WORLD_SIZE is {os.environ['WORLD_SIZE']}")
+        if args.local_rank == 0:
+            print(f"WORLD_SIZE is {os.environ['WORLD_SIZE']}")
 
     train_sampler = None
     if args.distributed:
@@ -112,13 +113,11 @@ def run(args):
 
             if args.distributed:
                 reduced_loss = loss.clone()
-                dist.all_reduce(reduced_loss, op=dist.reduce_op.SUM)
+                dist.all_reduce(reduced_loss, op=dist.ReduceOp.SUM)
                 reduced_loss /= args.world_size
             else:
                 reduced_loss = loss
             train_loss_meter.update(reduced_loss.item())
-
-            print(i, '/', len(train_loader))
 
         scheduler.step(ep)
 
@@ -129,8 +128,8 @@ def run(args):
 
     save_ckpt(logdir, model)
 
-    from evaluate import evaluate
-    evaluate(logdir)
+    # from evaluate import evaluate
+    # evaluate(logdir)
 
 
 
