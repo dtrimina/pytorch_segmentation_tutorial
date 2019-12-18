@@ -1,8 +1,8 @@
 {
-    "model_name": "drn_c_26",
+    "model_name": "enet",
 
     "dataset": "cityscapes",
-    "root": "../database/Cityscapes",
+    "root": "/home/dtrimina/database/Cityscapes",
     "n_classes": 20,
     "id_unlabel": 0,
     "brightness": 0.5,

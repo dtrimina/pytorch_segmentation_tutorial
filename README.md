@@ -29,7 +29,7 @@ model | paper | code | params size(fp32) |
 - data augmentation: colorjit + randomhflip + randomscale + randomcrop  
 - input image normalize: ToTensor + Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 - loss function: CrossEntropyLoss + class_weight  
-- 90 epoch, Adam optimizer, initial_lr=0.02, poly learning rate policy with power=0.9  
+- 90 epoch, Adam optimizer, initial_lr=0.01  
 
 #### train and evaluate
 

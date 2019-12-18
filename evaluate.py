@@ -4,7 +4,6 @@ from tqdm import tqdm
 from PIL import Image
 import json
 
-
 import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
@@ -48,7 +47,8 @@ def evaluate(logdir, save_predict=False):
 
             # resize
             h, w = image.size(2), image.size(3)
-            image = F.interpolate(image, size=(int((h//32)*32), int(w//32)*32), mode='bilinear', align_corners=True)
+            image = F.interpolate(image, size=(int((h // 32) * 32), int(w // 32) * 32), mode='bilinear',
+                                  align_corners=True)
             predict = model(image)
             # return to the original size
             predict = F.interpolate(predict, size=(h, w), mode='bilinear', align_corners=True)
@@ -109,14 +109,10 @@ def msc_evaluate(logdir, save_predict=False):
             label = sample['label'].to(device)
             # resize
             h, w = image.size(2), image.size(3)
-            H, W = (int((h // 32) * 32), int(w // 32) * 32)
-            image = F.interpolate(image, size=(H, W), mode='bilinear',
-                                  align_corners=True)
-
 
             predicts = torch.zeros((1, cfg['n_classes'], h, w), requires_grad=False).to(device)
             for scale in eval_scales:
-                newHW = (int(H*scale), int(W*scale))
+                newHW = (int((h * scale // 32) * 32), int((w * scale // 32) * 32))
                 new_image = F.interpolate(image, newHW, mode='bilinear', align_corners=True)
                 out = model(new_image)
                 out = F.interpolate(out, (h, w), mode='bilinear', align_corners=True)
@@ -158,5 +154,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    evaluate(args.logdir, save_predict=args.s)
+    # evaluate(args.logdir, save_predict=args.s)
     msc_evaluate(args.logdir, save_predict=args.s)
