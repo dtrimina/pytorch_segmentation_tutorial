@@ -6,7 +6,6 @@ import torch
 import torch.utils.data as data
 from torchvision import transforms
 
-from toolbox.utils import color_map
 from toolbox.datasets.augmentations import Resize, Compose, ColorJitter, RandomHorizontalFlip, RandomCrop, RandomScale
 
 
@@ -137,7 +136,7 @@ if __name__ == '__main__':
     with open(path, 'r') as fp:
         cfg = json.load(fp)
 
-    dataset = Cityscapes(cfg, mode='val')
+    dataset = Cityscapes(cfg, mode='train')
     from toolbox.utils import class_to_RGB
     import matplotlib.pyplot as plt
 
