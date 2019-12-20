@@ -154,5 +154,5 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    # evaluate(args.logdir, save_predict=args.s)
+    evaluate(args.logdir, save_predict=args.s)
     msc_evaluate(args.logdir, save_predict=args.s)
