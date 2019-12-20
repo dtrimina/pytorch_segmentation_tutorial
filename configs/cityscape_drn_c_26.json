@@ -15,14 +15,14 @@
     "eval_flip": "true",
 
 
-    "ims_per_gpu": 4,
+    "ims_per_gpu": 8,
     "num_workers": 4,
 
-    "lr_start": 0.01,
+    "lr_start": 1e-4,
     "momentum": 0.9,
     "weight_decay": 5e-4,
     "lr_power": 0.9,
-    "epochs": 90,
+    "epochs": 150,
 
     "loss": "crossentropy",
     "class_weight": "enet"

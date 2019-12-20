@@ -14,14 +14,17 @@
 
 #### models
 
-model | paper | code | params size(fp32) |  
+- training on 4 taitanxp GPUs  
+- msc miou means using multi-scale images (0.5 0.75 1.0 1.25 1.5 1.75) and their flip version for evaluation  
+
+model | miou | msc miou | params size(fp32) |  
 :-: | :-: | :-: | :-:   
-[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1505.04597.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/unet.py) | 51.14MB |  
-[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | [paper](http://xxx.itp.ac.cn/pdf/1511.00561.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/segnet.py) | 117MB |   
-[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1707.03718.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/linknet.py) | 44.07MB |   
-[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1611.09326.pdf) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/fcdensenet.py) | 35.58MB |  
-[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | [paper](http://xxx.itp.ac.cn/pdf/1606.02147v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/enet.py) | 1.34MB |  
-[DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | [paper](http://xxx.itp.ac.cn/pdf/1705.09914v1) | [code](https://github.com/dtrimina/pytorch_segmentation_tutorial/blob/master/toolbox/models/drn_c_26.py) | 78.67MB |   
+[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) |  |  | 51.14MB |  
+[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) |  |  | 117MB |   
+[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) |  |  | 44.07MB |   
+[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) |  |  | 35.58MB |  
+[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) |  |  | 1.34MB |  
+[DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | 0.671 | 0.702 | 78.67MB |   
 
 
 #### default training config  
@@ -29,23 +32,19 @@ model | paper | code | params size(fp32) |
 - data augmentation: colorjit + randomhflip + randomscale + randomcrop  
 - input image normalize: ToTensor + Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 - loss function: CrossEntropyLoss + class_weight  
-- 90 epoch, Adam optimizer, initial_lr=0.01  
+- 150 epoch, Adam optimizer, initial_lr=5e-4  
 
 #### train and evaluate
 
 ```
-# edit config.json based on configs/template.json
-# prepare dataset CamVid or SUNRGBD or ...
+# train on 4 GPUs
+python -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/cityscape_drn_c_26.json
 
-# train
-python -m torch.distributed.launch --nproc_per_node=4 train.py --config configs/ade20k_unet.json
-
-# predict
+# evaluate
 python evaluate.py --logdir [run logdir] [-s] 
 
 # Moreover, you can add [your configs].json in run_tasks.sh
 sh run_tasks.sh
-
 ```
 
 #### reference
