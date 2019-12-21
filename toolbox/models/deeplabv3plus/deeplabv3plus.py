@@ -84,7 +84,6 @@ class Deeplab_v3plus(nn.Module):
         if backbone == 'resnet101':
             self.backbone = resnet101_atrous(pretrained=True, os=os)
 
-        self.backbone = resnet101_atrous(pretrained=True, os=16)
         self.aspp = ASPP(in_chan=2048, out_chan=256, with_gp=aspp_global_feature)
         self.decoder = Decoder(n_classes, low_chan=256)
 
@@ -101,8 +100,16 @@ class Deeplab_v3plus(nn.Module):
 if __name__ == "__main__":
     import torch
 
-    # model = resnet50_atrous(pretrained=True)
-    model = Deeplab_v3plus(n_classes=41)
-    input = torch.randn((2, 3, 512, 1024))
-    output = model(input)
-    print(output.size())
+    # # model = resnet50_atrous(pretrained=True)
+    # model = Deeplab_v3plus(n_classes=41)
+    # input = torch.randn((2, 3, 512, 1024))
+    # output = model(input)
+    # print(output.size())
+
+    from torchsummary import summary
+
+    model = Deeplab_v3plus(n_classes=20, backbone='resnet50').cuda()
+    summary(model, (3, 224, 224))
+
+    model = Deeplab_v3plus(n_classes=20, backbone='resnet101').cuda()
+    summary(model, (3, 224, 224))

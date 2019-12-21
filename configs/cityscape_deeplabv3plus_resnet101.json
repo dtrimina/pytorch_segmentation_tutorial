@@ -15,7 +15,7 @@
     "eval_flip": "true",
 
 
-    "ims_per_gpu": 6,
+    "ims_per_gpu": 8,
     "num_workers": 4,
 
     "lr_start": 1e-4,
