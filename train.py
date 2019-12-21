@@ -68,9 +68,9 @@ def run(args):
 
     params_list = model.parameters()
     optimizer = torch.optim.Adam(params_list, lr=cfg['lr_start'], weight_decay=cfg['weight_decay'])
-    # scheduler = LambdaLR(optimizer, lr_lambda=lambda ep: (1 - ep / cfg['epochs']) ** 0.9)
+    scheduler = LambdaLR(optimizer, lr_lambda=lambda ep: (1 - ep / cfg['epochs']) ** 0.9)
 
-    model, optimizer = amp.initialize(model, optimizer, opt_level='O1')
+    model, optimizer = amp.initialize(model, optimizer, opt_level=args.opt_level)
     if args.distributed:
         model = apex.parallel.DistributedDataParallel(model, delay_allreduce=True)
 
@@ -121,7 +121,7 @@ def run(args):
                 reduced_loss = loss
             train_loss_meter.update(reduced_loss.item())
 
-        # scheduler.step(ep)
+        scheduler.step(ep)
 
         if args.local_rank == 0:
             logger.info(f'Iter | [{ep + 1:3d}/{cfg["epochs"]}] train loss={train_loss_meter.avg:.5f}')
@@ -146,6 +146,12 @@ if __name__ == '__main__':
         "--local_rank",
         type=int,
         default=0,
+    )
+
+    parser.add_argument(
+        "--opt_level",
+        type=str,
+        default='O1',
     )
 
     args = parser.parse_args()

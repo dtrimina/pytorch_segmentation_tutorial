@@ -15,15 +15,16 @@
 #### models
 
 - training on 4 taitanxp GPUs  
+- miou on validation set, use model trained after the last epoch to evaluate  
 - msc miou means using multi-scale images (0.5 0.75 1.0 1.25 1.5 1.75) and their flip version for evaluation  
 
 model | miou | msc miou | params size(fp32) |  
 :-: | :-: | :-: | :-:   
-[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) |  |  | 51.14MB |  
-[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) |  |  | 117MB |   
-[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) |  |  | 44.07MB |   
-[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) |  |  | 35.58MB |  
-[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) |  |  | 1.34MB |  
+[unet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | - | - | 51.14MB |  
+[segnet](https://blog.dtrimina.cn/Segmentation/segmentation-2/) | - | - | 117MB |   
+[LinkNet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | - | - | 44.07MB |   
+[FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | - | - | 35.58MB |  
+[ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | - | - | 1.34MB |  
 [DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | 0.671 | 0.702 | 78.67MB |   
 
 
