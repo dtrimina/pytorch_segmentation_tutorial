@@ -1,0 +1,30 @@
+{
+    "model_name": "deeplabv3plus_resnet50",
+
+    "dataset": "cityscapes",
+    "root": "../database/Cityscapes",
+    "n_classes": 20,
+    "id_unlabel": 0,
+    "brightness": 0.5,
+    "contrast": 0.5,
+    "saturation": 0.5,
+    "p": 0.5,
+    "scales_range": "0.5 2.0",
+    "crop_size": "736 736",
+    "eval_scales": "0.5 0.75 1.0 1.25 1.5 1.75",
+    "eval_flip": "true",
+
+
+    "ims_per_gpu": 8,
+    "num_workers": 4,
+
+    "lr_start": 1e-4,
+    "momentum": 0.9,
+    "weight_decay": 5e-4,
+    "lr_power": 0.9,
+    "epochs": 150,
+
+    "loss": "crossentropy",
+    "class_weight": "enet"
+}
+
