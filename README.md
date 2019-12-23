@@ -27,7 +27,7 @@ model | miou | msc miou | params size(fp32) |
 [FC-DenseNet103](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | - | - | 35.58MB |  
 [ENet](https://blog.dtrimina.cn/Segmentation/segmentation-3/) | - | - | 1.34MB |  
 [DRN-C-26](https://blog.dtrimina.cn/Segmentation/segmentation-4/) | 0.671 | 0.702 | 78.67MB |   
-Deeplabv3+_resnet50 | - | - | 153.94MB |  
+Deeplabv3+_resnet50 | 0.746 | 0.765 | 153.94MB |  
 Deeplabv3+_resnet101 | - | - | 226.39MB |  
 
 #### default training config  
